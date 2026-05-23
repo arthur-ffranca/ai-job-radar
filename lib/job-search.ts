@@ -1,0 +1,76 @@
+import type { DemoReportRequest, RankedOpportunity } from "@/lib/job-radar-types";
+
+const roleSkillMap: Record<string, string[]> = {
+  marketing: ["Campaign Management", "Market Research", "CRM", "Brand Strategy"],
+  sales: ["Lead Generation", "CRM", "Negotiation", "Sales Enablement"],
+  finance: ["Budgeting", "Forecasting", "Risk Analysis", "Excel"],
+  product: ["Product Discovery", "Roadmapping", "Customer Research", "Stakeholder Management"],
+  engineering: ["System Design", "Code Quality", "Automation", "Cloud Platforms"],
+  operations: ["Process Improvement", "Project Management", "Forecasting", "Stakeholder Management"],
+  hr: ["Recruiting", "People Operations", "Employee Experience", "Stakeholder Management"],
+  supply: ["Demand Planning", "Supply Planning", "Operations", "Forecasting"],
+};
+
+const industryCompanies: Record<string, string[]> = {
+  finance: ["Nubank", "XP", "Stone"],
+  fintech: ["Nubank", "Stripe", "Brex"],
+  retail: ["Mercado Livre", "Magazine Luiza", "Amazon"],
+  ecommerce: ["Mercado Livre", "Shopify", "Amazon"],
+  healthcare: ["Alice", "Dasa", "Dr. Consulta"],
+  logistics: ["Loggi", "Rappi", "DHL"],
+  technology: ["Vercel", "OpenAI", "Linear"],
+  saas: ["HubSpot", "Salesforce", "Notion"],
+};
+
+function roleFamily(role: string) {
+  const lower = role.toLowerCase();
+
+  if (/(marketing|growth|brand|content|crm|performance)/.test(lower)) return "marketing";
+  if (/(sales|account|business development|revenue)/.test(lower)) return "sales";
+  if (/(finance|financial|fp&a|accounting|controller)/.test(lower)) return "finance";
+  if (/(product|pm|owner|growth product)/.test(lower)) return "product";
+  if (/(engineer|developer|software|frontend|backend|platform)/.test(lower)) return "engineering";
+  if (/(operations|ops|process|program)/.test(lower)) return "operations";
+  if (/(hr|people|talent|recruit)/.test(lower)) return "hr";
+  if (/(supply|procurement|logistics|planning)/.test(lower)) return "supply";
+
+  return "general";
+}
+
+function titleCase(value: string) {
+  return value
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+export function searchMockJobs(request: DemoReportRequest): RankedOpportunity[] {
+  const targetRole = request.targetRole.trim() || "Selected Role";
+  const family = roleFamily(targetRole);
+  const industryKey = request.desiredIndustry.toLowerCase();
+  const companies = industryCompanies[industryKey] || industryCompanies[family] || [
+    "Aster Labs",
+    "Northstar Co.",
+    "Atlas Group",
+  ];
+  const baseSkills = roleSkillMap[family] || ["Stakeholder Management", "Project Management", "Communication", "Execution"];
+  const requiredSkills = Array.from(new Set([...request.mustHaveKeywords, ...baseSkills])).slice(0, 5);
+  const location = request.location.trim() || "Any location";
+  const workModel =
+    request.workModel === "any"
+      ? "Flexible"
+      : request.workModel.charAt(0).toUpperCase() + request.workModel.slice(1);
+
+  return companies.slice(0, 3).map((company, index) => ({
+    company,
+    role: index === 0 ? targetRole : `${titleCase(family)} ${index === 1 ? "Specialist" : "Manager"}`,
+    location,
+    workModel,
+    estimatedSalary: index === 0 ? "Salary available after screening" : "Not disclosed",
+    matchScore: 0,
+    requiredSkills,
+    profileGaps: [],
+    description: `${company} is hiring for ${targetRole} with emphasis on ${requiredSkills.join(", ")}. The role expects ${request.seniority === "Any" ? "role-appropriate" : request.seniority.toLowerCase()} ownership and ${workModel.toLowerCase()} collaboration.`,
+  }));
+}
