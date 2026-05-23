@@ -5,6 +5,8 @@ services:
     plan: free
     healthCheckPath: /
     envVars:
+      - key: API_URL
+        value: https://ai-job-radar-api.onrender.com
       - key: API_INTERNAL_HOST
         fromService:
           name: ai-job-radar-api

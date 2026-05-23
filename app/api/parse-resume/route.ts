@@ -28,10 +28,27 @@ export async function POST(request: Request) {
   backendFormData.append("file", file, file.name);
 
   const backendUrl = resolveBackendUrl();
-  const backendResponse = await fetch(`${backendUrl}/parse-resume`, {
-    method: "POST",
-    body: backendFormData,
-  });
+  let backendResponse: globalThis.Response;
+
+  try {
+    backendResponse = await fetch(`${backendUrl}/parse-resume`, {
+      method: "POST",
+      body: backendFormData,
+    });
+  } catch (error) {
+    console.error("[AI Job Radar] Resume proxy failed", {
+      backendUrl,
+      error,
+    });
+
+    return Response.json(
+      {
+        detail: "Resume parser service is unavailable.",
+        backendUrl,
+      },
+      { status: 502 }
+    );
+  }
 
   const responseText = await backendResponse.text();
 
