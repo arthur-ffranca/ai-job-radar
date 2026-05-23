@@ -1,6 +1,7 @@
 import type { ParsedProfile, ParseResumeResponse, Seniority } from "@/lib/job-radar-types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
+const PRODUCTION_API_URL = "https://ai-job-radar-api.onrender.com";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || PRODUCTION_API_URL;
 
 export class ParseResumeDebugError extends Error {
   debugResult: unknown;
@@ -10,6 +11,20 @@ export class ParseResumeDebugError extends Error {
     this.name = "ParseResumeDebugError";
     this.debugResult = debugResult;
   }
+}
+
+function getResumeParserUrls() {
+  const urls = [API_URL, PRODUCTION_API_URL, "/api"];
+
+  return Array.from(new Set(urls.filter(Boolean))).map((url) =>
+    url.endsWith("/") ? url.slice(0, -1) : url
+  );
+}
+
+function createResumeFormData(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return formData;
 }
 
 function normalizeSeniority(value: string): Seniority {
@@ -167,26 +182,63 @@ export async function parseResumeFile(file: File): Promise<{
   }
 
   console.log("[AI Job Radar] selectedFile", file);
-  const formData = new FormData();
-  formData.append("file", file);
-  console.log("[AI Job Radar] formData created", {
+  console.log("[AI Job Radar] formData ready", {
     fileName: file.name,
     fileSize: file.size,
+    parserUrls: getResumeParserUrls(),
   });
 
-  const response = await fetch(`${API_URL}/parse-resume`, {
-    method: "POST",
-    body: formData,
-  });
+  let response: Response | null = null;
+  let body: unknown = null;
+  let lastError: unknown = null;
+  const parserUrls = getResumeParserUrls();
 
-  const body = await response.json().catch(() => null);
-  console.log("[AI Job Radar] API response result", body);
+  for (const parserUrl of parserUrls) {
+    try {
+      console.log("[AI Job Radar] parsing endpoint attempt", parserUrl);
+      response = await fetch(`${parserUrl}/parse-resume`, {
+        method: "POST",
+        body: createResumeFormData(file),
+      });
+
+      body = await response.json().catch(() => null);
+      console.log("[AI Job Radar] API response result", {
+        parserUrl,
+        status: response.status,
+        body,
+      });
+
+      if (response.ok) {
+        break;
+      }
+
+      lastError = body;
+    } catch (error) {
+      console.log("[AI Job Radar] parser endpoint failed", {
+        parserUrl,
+        error,
+      });
+      lastError = error;
+      response = null;
+      body = null;
+    }
+  }
+
+  if (!response) {
+    throw new ParseResumeDebugError(
+      "Resume parser service is unavailable. Try again in a few seconds while the server wakes up.",
+      lastError
+    );
+  }
 
   if (!response.ok) {
     const message =
-      typeof body?.detail === "string"
+      body &&
+      typeof body === "object" &&
+      "detail" in body &&
+      typeof body.detail === "string"
         ? body.detail
-        : "Error parsing CV.";
+        : "Error parsing CV. The parser did not accept this upload.";
     throw new ParseResumeDebugError(message, body);
   }
 
