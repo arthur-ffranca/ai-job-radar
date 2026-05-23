@@ -8,11 +8,9 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useClerk, useUser } from "@clerk/nextjs";
+import { SignIn, useUser } from "@clerk/nextjs";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Mail, Shield, Sparkles, X } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { Shield, Sparkles, X } from "lucide-react";
 
 type AuthPromptContextValue = {
   isSignedIn: boolean;
@@ -48,7 +46,6 @@ const clerkAppearance = {
 
 export function AuthPromptProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const clerk = useClerk();
   const { isSignedIn } = useUser();
 
   const openAuthPrompt = useCallback(() => {
@@ -72,18 +69,6 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
     }),
     [isSignedIn, openAuthPrompt, requireAuth]
   );
-
-  const openClerkSignIn = useCallback(() => {
-    setIsOpen(false);
-    clerk.openSignIn({
-      appearance: clerkAppearance,
-      fallbackRedirectUrl: "/dashboard",
-      forceRedirectUrl: "/dashboard",
-      signUpFallbackRedirectUrl: "/dashboard",
-      signUpForceRedirectUrl: "/dashboard",
-      withSignUp: true,
-    });
-  }, [clerk]);
 
   return (
     <AuthPromptContext.Provider value={value}>
@@ -135,27 +120,15 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
                 Save your career profile, generate reports, and return to your dashboard when new market signals appear.
               </p>
 
-              <div className="mt-6 space-y-3">
-                <Button
-                  type="button"
-                  size="lg"
-                  className="h-12 w-full"
-                  onClick={openClerkSignIn}
-                >
-                  Continue with Google
-                  <ArrowRight />
-                </Button>
-
-                <Button
-                  type="button"
-                  size="lg"
-                  variant="outline"
-                  className="h-12 w-full"
-                  onClick={openClerkSignIn}
-                >
-                  <Mail />
-                  Continue with email
-                </Button>
+              <div className="mt-6">
+                <SignIn
+                  appearance={clerkAppearance}
+                  fallbackRedirectUrl="/dashboard"
+                  forceRedirectUrl="/dashboard"
+                  signUpFallbackRedirectUrl="/dashboard"
+                  signUpForceRedirectUrl="/dashboard"
+                  withSignUp
+                />
               </div>
 
               <p className="mt-5 text-center text-xs leading-5 text-slate-500">
