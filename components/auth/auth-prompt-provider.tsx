@@ -8,9 +8,12 @@ import {
   useMemo,
   useState,
 } from "react";
-import { SignIn, useUser } from "@clerk/nextjs";
+import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 import { AnimatePresence, motion } from "framer-motion";
-import { Shield, Sparkles, X } from "lucide-react";
+import { ArrowRight, Mail, Shield, Sparkles, X } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 
 type AuthPromptContextValue = {
   isSignedIn: boolean;
@@ -19,30 +22,6 @@ type AuthPromptContextValue = {
 };
 
 const AuthPromptContext = createContext<AuthPromptContextValue | null>(null);
-
-const clerkAppearance = {
-  variables: {
-    colorPrimary: "#38bdf8",
-    colorBackground: "#020617",
-    colorText: "#f8fafc",
-    colorTextSecondary: "#94a3b8",
-    colorInputBackground: "rgba(15, 23, 42, 0.84)",
-    colorInputText: "#f8fafc",
-    borderRadius: "0.5rem",
-  },
-  elements: {
-    cardBox:
-      "border border-white/10 bg-slate-950 shadow-[0_24px_80px_rgba(0,0,0,0.55)]",
-    card: "bg-slate-950 text-white",
-    headerTitle: "text-white",
-    headerSubtitle: "text-slate-400",
-    socialButtonsBlockButton:
-      "border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.07]",
-    formButtonPrimary:
-      "bg-[linear-gradient(135deg,#38bdf8,#34d399)] text-slate-950 hover:opacity-95",
-    footerActionLink: "text-sky-200 hover:text-sky-100",
-  },
-};
 
 export function AuthPromptProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -120,15 +99,26 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
                 Save your career profile, generate reports, and return to your dashboard when new market signals appear.
               </p>
 
-              <div className="mt-6">
-                <SignIn
-                  appearance={clerkAppearance}
-                  fallbackRedirectUrl="/dashboard"
-                  forceRedirectUrl="/dashboard"
-                  signUpFallbackRedirectUrl="/dashboard"
-                  signUpForceRedirectUrl="/dashboard"
-                  withSignUp
-                />
+              <div className="mt-6 space-y-3">
+                <Button asChild type="button" size="lg" className="h-12 w-full">
+                  <Link href="/sign-in">
+                    Continue with Google
+                    <ArrowRight />
+                  </Link>
+                </Button>
+
+                <Button
+                  asChild
+                  type="button"
+                  size="lg"
+                  variant="outline"
+                  className="h-12 w-full"
+                >
+                  <Link href="/sign-in">
+                    <Mail />
+                    Continue with email
+                  </Link>
+                </Button>
               </div>
 
               <p className="mt-5 text-center text-xs leading-5 text-slate-500">
