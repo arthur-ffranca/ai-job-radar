@@ -25,6 +25,6 @@ services:
       - key: GROQ_MODEL
         value: llama-3.3-70b-versatile
       - key: ALLOWED_ORIGINS
-        value: https://ai-job-radar-web.onrender.com
+        value: https://ai-job-radar-web.onrender.com,https://aijobradar.com.br,https://www.aijobradar.com.br
       - key: GROQ_API_KEY
         sync: false
