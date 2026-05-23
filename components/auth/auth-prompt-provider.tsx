@@ -101,7 +101,7 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
 
               <div className="mt-6 space-y-3">
                 <Button asChild type="button" size="lg" className="h-12 w-full">
-                  <Link href="/sign-in">
+                  <Link href="/sign-up">
                     Continue with Google
                     <ArrowRight />
                   </Link>
@@ -114,7 +114,7 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
                   variant="outline"
                   className="h-12 w-full"
                 >
-                  <Link href="/sign-in">
+                  <Link href="/sign-up">
                     <Mail />
                     Continue with email
                   </Link>

@@ -338,9 +338,13 @@ function InsightsSection() {
 
 function BetaCTA() {
   const [submitted, setSubmitted] = useState(false);
+  const [email, setEmail] = useState("");
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("ai-job-radar-beta-email", email);
+    }
     setSubmitted(true);
   }
 
@@ -370,6 +374,11 @@ function BetaCTA() {
             type="email"
             placeholder="you@email.com"
             aria-label="Email address"
+            value={email}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              setSubmitted(false);
+            }}
             className="h-11 border-white/10 bg-slate-950/70"
           />
           <Button type="submit" className="h-11">
@@ -377,6 +386,11 @@ function BetaCTA() {
             {submitted ? <Check /> : <ArrowRight />}
           </Button>
         </form>
+        <p className="mx-auto mt-3 max-w-xl text-xs leading-5 text-slate-500">
+          {submitted
+            ? "Beta interest saved for this browser. Account creation is available through Clerk while the backend waitlist is being connected."
+            : "Early access accounts are handled through Clerk; this waitlist capture is a temporary beta placeholder."}
+        </p>
       </div>
     </section>
   );
@@ -413,11 +427,11 @@ export default function Home() {
             </a>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" onClick={openAuthPrompt}>
-              Sign In
+            <Button asChild size="sm" variant="ghost">
+              <a href="/sign-in">Sign In</a>
             </Button>
             <Button asChild size="sm" variant="accent">
-              <a href="#beta">
+              <a href="/sign-up">
                 Join Beta
                 <ChevronRight />
               </a>
