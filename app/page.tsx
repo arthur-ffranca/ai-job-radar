@@ -28,6 +28,7 @@ import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { JobIntelligenceSnapshot } from "@/components/landing/job-intelligence-snapshot";
 import { SectionIntro } from "@/components/landing/section-intro";
 import { UploadReportFlow } from "@/components/upload-report-flow";
+import { useAuthPrompt } from "@/components/auth/auth-prompt-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -382,6 +383,8 @@ function BetaCTA() {
 }
 
 export default function Home() {
+  const { openAuthPrompt } = useAuthPrompt();
+
   return (
     <main className="min-h-screen overflow-hidden bg-background text-foreground">
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-950/72 backdrop-blur-xl">
@@ -409,12 +412,17 @@ export default function Home() {
               Join Beta
             </a>
           </div>
-          <Button asChild size="sm" variant="accent">
-            <a href="#beta">
-              Join Beta
-              <ChevronRight />
-            </a>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="ghost" onClick={openAuthPrompt}>
+              Sign In
+            </Button>
+            <Button asChild size="sm" variant="accent">
+              <a href="#beta">
+                Join Beta
+                <ChevronRight />
+              </a>
+            </Button>
+          </div>
         </nav>
       </header>
 
@@ -441,11 +449,9 @@ export default function Home() {
               AI Job Radar analyzes job postings, detects market skills, scores your fit, and helps you optimize your resume for the best opportunities.
             </p>
             <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-              <Button asChild size="lg">
-                <a href="/demo">
-                  Analyze My Profile
-                  <ArrowRight />
-                </a>
+              <Button size="lg" onClick={openAuthPrompt}>
+                Analyze My Profile
+                <ArrowRight />
               </Button>
               <Button asChild size="lg" variant="outline">
                 <a href="/demo">

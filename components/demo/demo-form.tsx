@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { AnalysisLoadingOverlay } from "@/components/demo/analysis-loading-overlay";
+import { useAuthPrompt } from "@/components/auth/auth-prompt-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -92,6 +93,7 @@ function normalizeWorkModel(value: string | null): WorkModel {
 
 export function DemoForm() {
   const router = useRouter();
+  const { requireAuth } = useAuthPrompt();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<UploadFormData>(initialFormData);
   const [isParsing, setIsParsing] = useState(false);
@@ -126,6 +128,10 @@ export function DemoForm() {
   }, []);
 
   const handleGenerate = useCallback(async () => {
+    if (!requireAuth()) {
+      return;
+    }
+
     if (isLoading || isParsing) {
       return;
     }
@@ -172,7 +178,7 @@ export function DemoForm() {
     });
 
     router.push("/report");
-  }, [formData, isLoading, isParsing, router]);
+  }, [formData, isLoading, isParsing, requireAuth, router]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

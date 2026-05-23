@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
+
+import { AuthPromptProvider } from "@/components/auth/auth-prompt-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,8 +16,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body>{children}</body>
-    </html>
+    <ClerkProvider
+      appearance={{
+        variables: {
+          colorPrimary: "#38bdf8",
+          colorBackground: "#020617",
+          colorText: "#f8fafc",
+          colorTextSecondary: "#94a3b8",
+          borderRadius: "0.5rem",
+        },
+      }}
+    >
+      <html lang="en" className="dark">
+        <body>
+          <AuthPromptProvider>{children}</AuthPromptProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
