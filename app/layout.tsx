@@ -16,22 +16,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      appearance={{
-        variables: {
-          colorPrimary: "#38bdf8",
-          colorBackground: "#020617",
-          colorText: "#f8fafc",
-          colorTextSecondary: "#94a3b8",
-          borderRadius: "0.5rem",
-        },
-      }}
-    >
-      <html lang="en" className="dark">
-        <body>
+    <html lang="en" className="dark">
+      <body>
+        <ClerkProvider
+          appearance={{
+            variables: {
+              colorPrimary: "#38bdf8",
+              colorBackground: "#020617",
+              colorText: "#f8fafc",
+              colorTextSecondary: "#94a3b8",
+              borderRadius: "0.5rem",
+            },
+          }}
+        >
           <AuthPromptProvider>{children}</AuthPromptProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }
