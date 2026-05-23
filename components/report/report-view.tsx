@@ -22,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlobalMarketIntelligence } from "@/components/report/global-market-intelligence";
 import { readStoredDemoReport } from "@/lib/job-radar-client";
 import type { DemoReportRequest, JobRadarReport } from "@/lib/job-radar-types";
 
@@ -182,6 +183,18 @@ export function ReportView({
             Download Report
           </Button>
         </div>
+      </div>
+
+      <GlobalMarketIntelligence />
+
+      <div className="mb-6 mt-12">
+        <Badge variant="pulse">Personal Career Insights</Badge>
+        <h2 className="mt-4 text-2xl font-semibold text-white sm:text-3xl">
+          Your private profile fit and application strategy.
+        </h2>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
+          These insights use your uploaded CV, selected target role, and generated report. They are separate from the global market layer above.
+        </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
