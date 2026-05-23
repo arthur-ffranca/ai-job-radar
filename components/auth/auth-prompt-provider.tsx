@@ -8,7 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { SignInButton, useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Mail, Shield, Sparkles, X } from "lucide-react";
 
@@ -48,6 +48,7 @@ const clerkAppearance = {
 
 export function AuthPromptProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const clerk = useClerk();
   const { isSignedIn } = useUser();
 
   const openAuthPrompt = useCallback(() => {
@@ -71,6 +72,18 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
     }),
     [isSignedIn, openAuthPrompt, requireAuth]
   );
+
+  const openClerkSignIn = useCallback(() => {
+    setIsOpen(false);
+    clerk.openSignIn({
+      appearance: clerkAppearance,
+      fallbackRedirectUrl: "/dashboard",
+      forceRedirectUrl: "/dashboard",
+      signUpFallbackRedirectUrl: "/dashboard",
+      signUpForceRedirectUrl: "/dashboard",
+      withSignUp: true,
+    });
+  }, [clerk]);
 
   return (
     <AuthPromptContext.Provider value={value}>
@@ -123,35 +136,26 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
               </p>
 
               <div className="mt-6 space-y-3">
-                <SignInButton
-                  mode="modal"
-                  forceRedirectUrl="/dashboard"
-                  fallbackRedirectUrl="/dashboard"
-                  signUpForceRedirectUrl="/dashboard"
-                  signUpFallbackRedirectUrl="/dashboard"
-                  withSignUp
-                  appearance={clerkAppearance}
+                <Button
+                  type="button"
+                  size="lg"
+                  className="h-12 w-full"
+                  onClick={openClerkSignIn}
                 >
-                  <Button type="button" size="lg" className="h-12 w-full">
-                    Continue with Google
-                    <ArrowRight />
-                  </Button>
-                </SignInButton>
+                  Continue with Google
+                  <ArrowRight />
+                </Button>
 
-                <SignInButton
-                  mode="modal"
-                  forceRedirectUrl="/dashboard"
-                  fallbackRedirectUrl="/dashboard"
-                  signUpForceRedirectUrl="/dashboard"
-                  signUpFallbackRedirectUrl="/dashboard"
-                  withSignUp
-                  appearance={clerkAppearance}
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="outline"
+                  className="h-12 w-full"
+                  onClick={openClerkSignIn}
                 >
-                  <Button type="button" size="lg" variant="outline" className="h-12 w-full">
-                    <Mail />
-                    Continue with email
-                  </Button>
-                </SignInButton>
+                  <Mail />
+                  Continue with email
+                </Button>
               </div>
 
               <p className="mt-5 text-center text-xs leading-5 text-slate-500">

@@ -7,6 +7,8 @@ services:
     envVars:
       - key: API_URL
         value: https://ai-job-radar-api.onrender.com
+      - key: NEXT_PUBLIC_API_URL
+        value: https://ai-job-radar-api.onrender.com
       - key: API_INTERNAL_HOST
         fromService:
           name: ai-job-radar-api
@@ -23,6 +25,6 @@ services:
       - key: GROQ_MODEL
         value: llama-3.3-70b-versatile
       - key: ALLOWED_ORIGINS
-        sync: false
+        value: https://ai-job-radar-web.onrender.com
       - key: GROQ_API_KEY
         sync: false
