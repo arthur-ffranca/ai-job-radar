@@ -93,7 +93,7 @@ function normalizeWorkModel(value: string | null): WorkModel {
 
 export function DemoForm() {
   const router = useRouter();
-  const { requireAuth } = useAuthPrompt();
+  const { isAuthLoaded, requireAuth } = useAuthPrompt();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<UploadFormData>(initialFormData);
   const [isParsing, setIsParsing] = useState(false);
@@ -128,6 +128,15 @@ export function DemoForm() {
   }, []);
 
   const handleGenerate = useCallback(async () => {
+    if (!isAuthLoaded) {
+      setFormData((prev) => ({
+        ...prev,
+        uploadStatus: "idle",
+        uploadMessage: "Checking your account session. Try again in a moment.",
+      }));
+      return;
+    }
+
     if (!requireAuth()) {
       return;
     }
@@ -178,7 +187,7 @@ export function DemoForm() {
     });
 
     router.push("/report");
-  }, [formData, isLoading, isParsing, requireAuth, router]);
+  }, [formData, isAuthLoaded, isLoading, isParsing, requireAuth, router]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

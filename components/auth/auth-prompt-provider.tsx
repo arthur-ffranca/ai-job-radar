@@ -5,6 +5,7 @@ import {
   type ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -16,6 +17,7 @@ import { ArrowRight, Mail, Shield, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type AuthPromptContextValue = {
+  isAuthLoaded: boolean;
   isSignedIn: boolean;
   openAuthPrompt: () => void;
   requireAuth: () => boolean;
@@ -25,28 +27,43 @@ const AuthPromptContext = createContext<AuthPromptContextValue | null>(null);
 
 export function AuthPromptProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { isSignedIn } = useUser();
+  const { isLoaded, isSignedIn } = useUser();
 
   const openAuthPrompt = useCallback(() => {
+    if (isSignedIn) {
+      return;
+    }
+
     setIsOpen(true);
-  }, []);
+  }, [isSignedIn]);
 
   const requireAuth = useCallback(() => {
+    if (!isLoaded) {
+      return false;
+    }
+
     if (isSignedIn) {
       return true;
     }
 
     setIsOpen(true);
     return false;
+  }, [isLoaded, isSignedIn]);
+
+  useEffect(() => {
+    if (isSignedIn) {
+      setIsOpen(false);
+    }
   }, [isSignedIn]);
 
   const value = useMemo(
     () => ({
+      isAuthLoaded: Boolean(isLoaded),
       isSignedIn: Boolean(isSignedIn),
       openAuthPrompt,
       requireAuth,
     }),
-    [isSignedIn, openAuthPrompt, requireAuth]
+    [isLoaded, isSignedIn, openAuthPrompt, requireAuth]
   );
 
   return (
