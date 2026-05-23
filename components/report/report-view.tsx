@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GlobalMarketIntelligence } from "@/components/report/global-market-intelligence";
 import { readStoredDemoReport } from "@/lib/job-radar-client";
-import type { DemoReportRequest, JobRadarReport } from "@/lib/job-radar-types";
+import type { DemoReportRequest, JobRadarReport, RoleTargetAnalysis } from "@/lib/job-radar-types";
 
 function downloadTextFile(filename: string, contents: string) {
   const blob = new Blob([contents], { type: "text/plain;charset=utf-8" });
@@ -35,6 +35,32 @@ function downloadTextFile(filename: string, contents: string) {
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+function slugify(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "role";
+}
+
+function roleReportText(report: JobRadarReport, analysis: RoleTargetAnalysis) {
+  return [
+    `AI Job Radar Role Report: ${analysis.targetRole}`,
+    `Generated: ${new Date(report.generatedAt).toLocaleString()}`,
+    `Resume: ${report.request.resumeName}`,
+    `Match score: ${analysis.matchScore}`,
+    `Fit signal: ${analysis.fitSignal}`,
+    "",
+    analysis.reportSummary,
+    "",
+    "Top opportunities:",
+    ...analysis.rankedOpportunities.map(
+      (job) => `- ${job.company}: ${job.matchScore} match (${job.requiredSkills.join(", ")})`
+    ),
+    "",
+    "Career gaps:",
+    ...analysis.careerGaps.map(
+      (gap) => `- ${gap.title} (${gap.severity}): ${gap.recommendation}`
+    ),
+  ].join("\n");
 }
 
 export function ReportView({
@@ -52,6 +78,20 @@ export function ReportView({
   });
 
   const requestedRole = initialRequest?.targetRole || "your target role";
+  const roleAnalyses = report?.roleAnalyses?.length
+    ? report.roleAnalyses
+    : report
+      ? [{
+          targetRole: report.snapshot.targetRole,
+          matchScore: report.matchScore,
+          fitSignal: report.fitSignal,
+          reportSummary: report.reportSummary,
+          optimizedResume: report.optimizedResume,
+          rankedOpportunities: report.rankedOpportunities,
+          careerGaps: report.careerGaps,
+          keySkills: report.keySkills,
+        }]
+      : [];
 
   const reportText = useMemo(() => {
     if (!report) {
@@ -160,7 +200,7 @@ export function ReportView({
             Your job intelligence report is ready.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">
-            A strategic view of your fit, strongest opportunities, missing proof points, and next application moves.
+            A strategic view of your fit, strongest opportunities, missing proof points, and role-specific resume revisions. Each target role gets its own optimized resume direction and downloadable report.
           </p>
         </motion.div>
 
@@ -172,7 +212,7 @@ export function ReportView({
             }
           >
             <Download />
-            Download Resume
+            Download Primary Resume
           </Button>
           <Button
             size="lg"
@@ -180,7 +220,7 @@ export function ReportView({
             onClick={() => downloadTextFile("ai-job-radar-report.txt", reportText)}
           >
             <FileText />
-            Download Report
+            Download Full Report
           </Button>
         </div>
       </div>
@@ -196,6 +236,76 @@ export function ReportView({
           These insights use your uploaded CV, selected target role, and generated report. They are separate from the global market layer above.
         </p>
       </div>
+
+      <Card className="mb-6 border-white/10 bg-slate-950/82 shadow-panel backdrop-blur">
+        <CardHeader className="p-5">
+          <div className="flex items-center gap-3">
+            <BriefcaseBusiness className="size-5 text-sky-200" />
+            <CardTitle className="text-xl">Target role strategy comparison</CardTitle>
+          </div>
+          <p className="text-sm leading-6 text-slate-400">
+            AI Job Radar creates a separate CV review for each selected target role, so users can compare paths and download tailored assets instead of using one generic resume.
+          </p>
+        </CardHeader>
+        <CardContent className="grid gap-3 p-5 pt-0 lg:grid-cols-3">
+          {roleAnalyses.map((analysis, index) => (
+            <div
+              key={analysis.targetRole}
+              className="rounded-lg border border-white/10 bg-white/[0.035] p-4 transition duration-300 hover:-translate-y-0.5 hover:border-sky-300/25"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs text-slate-500">Target role {index + 1}</p>
+                  <h3 className="mt-1 text-lg font-semibold text-white">
+                    {analysis.targetRole}
+                  </h3>
+                </div>
+                <div className="text-right">
+                  <p className="text-3xl font-semibold text-emerald-100">
+                    {analysis.matchScore}
+                  </p>
+                  <p className="text-xs text-slate-500">match</p>
+                </div>
+              </div>
+              <Badge variant={index === 0 ? "pulse" : "outline"} className="mt-4">
+                {index === 0 ? "Primary recommendation" : analysis.fitSignal}
+              </Badge>
+              <p className="mt-4 text-sm leading-6 text-slate-400">
+                {analysis.reportSummary}
+              </p>
+              <div className="mt-5 grid gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() =>
+                    downloadTextFile(
+                      `ai-job-radar-${slugify(analysis.targetRole)}-optimized-resume.txt`,
+                      analysis.optimizedResume
+                    )
+                  }
+                >
+                  <Download />
+                  Download role CV
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    downloadTextFile(
+                      `ai-job-radar-${slugify(analysis.targetRole)}-report.txt`,
+                      roleReportText(report, analysis)
+                    )
+                  }
+                >
+                  <FileText />
+                  Download role report
+                </Button>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
         <div className="space-y-6">
@@ -251,7 +361,7 @@ export function ReportView({
             <CardContent className="space-y-3 p-5 pt-0">
               {[
                 ["Resume", report.request.resumeName],
-                ["Role", report.request.targetRole],
+                ["Target roles", (report.request.targetRoles?.length ? report.request.targetRoles : [report.request.targetRole]).join(", ")],
                 ["Location", report.request.location || "Any location"],
                 ["Work model", report.request.workModel],
                 ["Seniority", report.request.seniority],

@@ -49,6 +49,7 @@ type UploadFormData = {
   uploadMessage: string;
   parserDebug: unknown;
   targetRole: string;
+  targetRoles: string[];
   location: string;
   workModel: WorkModel;
   seniority: Seniority;
@@ -66,6 +67,7 @@ const initialFormData: UploadFormData = {
   uploadMessage: "",
   parserDebug: null,
   targetRole: "",
+  targetRoles: [],
   location: "",
   workModel: "any",
   seniority: "Any",
@@ -111,6 +113,9 @@ export function DemoForm() {
       setFormData((prev) => ({
         ...prev,
         targetRole: prev.targetRole || params.get("targetRole") || "",
+        targetRoles: prev.targetRoles.length
+          ? prev.targetRoles
+          : parseKeywords(params.get("targetRole") || "").slice(0, 3),
         location: prev.location || params.get("location") || "",
         workModel: prev.workModel !== "any" ? prev.workModel : normalizeWorkModel(params.get("workModel")),
         seniority: prev.seniority !== "Any" ? prev.seniority : normalizeSeniority(params.get("seniority")),
@@ -156,11 +161,15 @@ export function DemoForm() {
       return;
     }
 
-    if (!formData.targetRole.trim()) {
+    const selectedTargetRoles = Array.from(
+      new Set([...(formData.targetRoles || []), formData.targetRole].map((role) => role.trim()).filter(Boolean))
+    ).slice(0, 3);
+
+    if (!selectedTargetRoles.length) {
       setFormData((prev) => ({
         ...prev,
         uploadStatus: "error",
-        uploadMessage: "Choose a target role before generating the report.",
+        uploadMessage: "Choose at least one target role before generating the report.",
       }));
       return;
     }
@@ -171,7 +180,8 @@ export function DemoForm() {
       resumeName: formData.cvFileName || "No CV uploaded",
       resumeText: formData.rawCvText,
       parsedProfile: formData.parsedProfile,
-      targetRole: formData.targetRole.trim(),
+      targetRole: selectedTargetRoles[0],
+      targetRoles: selectedTargetRoles,
       location: formData.location.trim(),
       workModel: formData.workModel,
       seniority: formData.seniority,
@@ -201,6 +211,27 @@ export function DemoForm() {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
+    }));
+  }
+
+  function addTargetRole() {
+    const role = formData.targetRole.trim();
+
+    if (!role) {
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      targetRole: "",
+      targetRoles: Array.from(new Set([...prev.targetRoles, role])).slice(0, 3),
+    }));
+  }
+
+  function removeTargetRole(role: string) {
+    setFormData((prev) => ({
+      ...prev,
+      targetRoles: prev.targetRoles.filter((item) => item !== role),
     }));
   }
 
@@ -264,7 +295,7 @@ export function DemoForm() {
           parsedProfile,
           parserDebug: response,
           targetRole:
-            prev.targetRole || parsedProfile.currentRole || parsedProfile.currentOrPreviousRoles[0] || "",
+            prev.targetRole || (prev.targetRoles.length ? "" : parsedProfile.currentRole || parsedProfile.currentOrPreviousRoles[0] || ""),
           location: prev.location,
           seniority:
             prev.seniority !== "Any"
@@ -438,19 +469,50 @@ export function DemoForm() {
               <label className="block">
                 <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
                   <BriefcaseBusiness className="size-4 text-sky-200" />
-                  Target role
+                  Target roles
                 </span>
                 <Input
                   name="targetRole"
-                  required
                   disabled={isLoading}
                   value={formData.targetRole}
-                  placeholder="e.g. Product Manager, Sales Lead, Finance Analyst"
+                  placeholder="Type a role, then add it. Up to 3 roles."
                   onChange={(event) =>
                     updateFormField("targetRole", event.target.value)
                   }
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addTargetRole();
+                    }
+                  }}
                   className="h-11 border-white/10 bg-slate-950/55"
                 />
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {formData.targetRoles.map((role) => (
+                    <button
+                      key={role}
+                      type="button"
+                      onClick={() => removeTargetRole(role)}
+                      className="rounded-md border border-sky-300/20 bg-sky-300/10 px-2.5 py-1 text-xs font-medium text-sky-100 transition hover:border-sky-200/40"
+                    >
+                      {role} x
+                    </button>
+                  ))}
+                  {formData.targetRoles.length < 3 ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={isLoading || !formData.targetRole.trim()}
+                      onClick={addTargetRole}
+                    >
+                      Add role
+                    </Button>
+                  ) : null}
+                </div>
+                <p className="mt-2 text-xs leading-5 text-slate-500">
+                  AI Job Radar will compare each target role and generate a separate resume review and download for each one.
+                </p>
               </label>
 
               <label className="block">

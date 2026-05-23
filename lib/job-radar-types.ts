@@ -7,6 +7,7 @@ export type DemoReportRequest = {
   resumeText?: string;
   parsedProfile?: ParsedProfile | null;
   targetRole: string;
+  targetRoles?: string[];
   location: string;
   workModel: WorkModel;
   seniority: Seniority;
@@ -179,4 +180,16 @@ export type JobRadarReport = {
   careerGaps: CareerGap[];
   optimizedResume: string;
   reportSummary: string;
+  roleAnalyses: RoleTargetAnalysis[];
+};
+
+export type RoleTargetAnalysis = {
+  targetRole: string;
+  matchScore: number;
+  fitSignal: string;
+  reportSummary: string;
+  optimizedResume: string;
+  rankedOpportunities: RankedOpportunity[];
+  careerGaps: CareerGap[];
+  keySkills: SkillSignal[];
 };
