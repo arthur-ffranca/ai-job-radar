@@ -364,7 +364,7 @@ export function DemoForm() {
           </p>
         </CardHeader>
         <CardContent className="p-6 pt-0 sm:p-8 sm:pt-0">
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form noValidate onSubmit={handleSubmit} className="space-y-5">
             <label className="block">
               <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
                 <Upload className="size-4 text-emerald-200" />
