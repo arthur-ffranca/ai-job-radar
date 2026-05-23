@@ -1,5 +1,17 @@
 services:
   - type: web
+    name: ai-job-radar-web
+    runtime: docker
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: API_INTERNAL_HOST
+        fromService:
+          name: ai-job-radar-api
+          type: web
+          property: hostport
+
+  - type: web
     name: ai-job-radar-api
     runtime: docker
     rootDir: backend
