@@ -113,8 +113,10 @@ export function mapParsedProfile(response: ParseResumeResponse): ParsedProfile {
     ...experience.map((item) => item.role),
     ...normalizeList(profile.previous_roles),
   ].filter(Boolean);
+  const inferredCurrentRole = profile.current_role || experience[0]?.role || "";
+  const inferredCurrentCompany = profile.current_company || experience[0]?.company || "";
   const previousRoles = currentOrPreviousRoles.filter(
-    (role, index) => index > 0 && role !== profile.current_role
+    (role, index) => index > 0 && role !== inferredCurrentRole
   );
   const education = educationDetails
     .map((item) => compactJoin([item.degree, item.field, item.institution, item.period]))
@@ -143,10 +145,10 @@ export function mapParsedProfile(response: ParseResumeResponse): ParsedProfile {
     location: profile.location,
     headline: profile.headline,
     summary: profile.summary,
-    currentRole: profile.current_role,
-    currentCompany: profile.current_company,
+    currentRole: inferredCurrentRole,
+    currentCompany: inferredCurrentCompany,
     previousRoles,
-    professionalHeadline: profile.headline || profile.current_role,
+    professionalHeadline: profile.headline || inferredCurrentRole,
     currentOrPreviousRoles,
     experience,
     industries: backendIndustries,
