@@ -176,7 +176,7 @@ function WorkflowSection() {
       <div className="mx-auto max-w-7xl">
         <SectionIntro
           eyebrow="Fluxo"
-          title="Do upload do CV a uma candidatura mais forte."
+          title="Do envio do CV a uma candidatura mais forte."
           copy="Cada etapa foi pensada para conectar depois a uma API completa de relatorios sem refazer a interface."
         />
 

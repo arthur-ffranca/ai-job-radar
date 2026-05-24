@@ -37,21 +37,21 @@ function normalizeSeniority(value: string): Seniority {
 
 function validateParseResponse(value: unknown): asserts value is ParseResumeResponse {
   if (!value || typeof value !== "object") {
-    throw new Error("Invalid parser response.");
+    throw new Error("Resposta invalida do leitor de CV.");
   }
 
   const response = value as Partial<ParseResumeResponse>;
 
   if (!response.file_name || typeof response.file_name !== "string") {
-    throw new Error("Invalid parser response: missing file name.");
+    throw new Error("Resposta invalida do leitor de CV: nome do arquivo ausente.");
   }
 
   if (!response.raw_text || typeof response.raw_text !== "string") {
-    throw new Error("Invalid parser response: raw text is empty.");
+    throw new Error("Resposta invalida do leitor de CV: texto extraido vazio.");
   }
 
   if (!response.profile || typeof response.profile !== "object") {
-    throw new Error("Invalid parser response: missing profile.");
+    throw new Error("Resposta invalida do leitor de CV: perfil ausente.");
   }
 }
 
@@ -240,7 +240,7 @@ export async function parseResumeFile(file: File): Promise<{
       "detail" in body &&
       typeof body.detail === "string"
         ? body.detail
-        : "Error parsing CV. The parser did not accept this upload.";
+        : "Erro ao ler o CV. O leitor nao aceitou este envio.";
     throw new ParseResumeDebugError(message, body);
   }
 

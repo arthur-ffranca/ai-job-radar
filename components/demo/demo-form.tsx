@@ -165,7 +165,7 @@ export function DemoForm() {
         ...prev,
         uploadStatus: "error",
         uploadMessage: formData.cvFile
-          ? "A leitura do CV ainda nao terminou. Aguarde o parser antes de gerar o relatorio."
+          ? "A leitura do CV ainda nao terminou. Aguarde o leitor antes de gerar o relatorio."
           : "Envie e processe um CV antes de gerar o relatorio.",
       }));
       return;
@@ -419,7 +419,7 @@ export function DemoForm() {
             <label className="block">
               <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
                 <Upload className="size-4 text-emerald-200" />
-                Upload do CV
+                Envio do CV
               </span>
               <input
                 ref={fileInputRef}
@@ -431,7 +431,7 @@ export function DemoForm() {
                 className="block w-full cursor-pointer rounded-lg border border-dashed border-white/15 bg-slate-900/65 p-4 text-sm text-slate-400 file:mr-4 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-950 hover:border-sky-300/25 disabled:cursor-not-allowed disabled:opacity-60"
               />
               <p className="mt-2 text-xs text-slate-500">
-                Apenas PDF ou DOCX. O arquivo e enviado como multipart/form-data para o parser de curriculos.
+                Apenas PDF ou DOCX. O arquivo e enviado como multipart/form-data para o leitor de curriculos.
               </p>
               {formData.cvFileName ? (
                 <div className="mt-3 flex flex-col gap-2 rounded-md border border-white/10 bg-white/[0.035] p-3 sm:flex-row sm:items-center sm:justify-between">
@@ -708,7 +708,7 @@ export function DemoForm() {
                   ? "Lendo curriculo"
                   : formData.uploadStatus === "success"
                     ? "Curriculo lido"
-                    : "Parser pronto"}
+                    : "Leitor pronto"}
               </p>
               <p className="mt-1 text-sm leading-5 text-slate-400">
                 {formData.uploadMessage ||
@@ -723,7 +723,7 @@ export function DemoForm() {
           <CardHeader className="p-5">
             <div className="flex items-center gap-3">
               <FileText className="size-5 text-sky-100" />
-              <CardTitle className="text-xl">Saida de debug do parser</CardTitle>
+              <CardTitle className="text-xl">Saida de debug do leitor</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-4 p-5 pt-0">

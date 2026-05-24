@@ -37,7 +37,7 @@ function splitKeywords(value: string | undefined): string[] {
 export default async function ReportPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const initialRequest: DemoReportRequest = {
-    resumeName: "No CV uploaded",
+    resumeName: "Nenhum CV enviado",
     targetRole: firstParam(params.targetRole) || "Selected Role",
     location: firstParam(params.location) || "",
     workModel: normalizeWorkModel(firstParam(params.workModel)),

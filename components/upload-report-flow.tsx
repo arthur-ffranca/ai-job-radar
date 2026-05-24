@@ -12,7 +12,7 @@ export function UploadReportFlow() {
       <CardHeader className="p-5">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-slate-500">Estudio de relatorio</p>
+            <p className="text-sm text-slate-500">Estudio de relatório</p>
             <CardTitle className="mt-2 text-xl leading-7">Fluxo de analise do perfil</CardTitle>
           </div>
           <div className="flex size-10 items-center justify-center rounded-md border border-sky-300/20 bg-sky-300/10 text-sky-200">
@@ -38,7 +38,7 @@ export function UploadReportFlow() {
           </span>
           <Input
             readOnly
-            value="{target_role} · {location}"
+            value="{cargo_alvo} - {localidade}"
             className="h-11 border-white/10 bg-slate-900/65 text-slate-400"
           />
         </label>

@@ -1,14 +1,14 @@
 import type { DemoReportRequest, RankedOpportunity } from "@/lib/job-radar-types";
 
 const roleSkillMap: Record<string, string[]> = {
-  marketing: ["Campaign Management", "Market Research", "CRM", "Brand Strategy"],
-  sales: ["Lead Generation", "CRM", "Negotiation", "Sales Enablement"],
-  finance: ["Budgeting", "Forecasting", "Risk Analysis", "Excel"],
-  product: ["Product Discovery", "Roadmapping", "Customer Research", "Stakeholder Management"],
-  engineering: ["System Design", "Code Quality", "Automation", "Cloud Platforms"],
-  operations: ["Process Improvement", "Project Management", "Forecasting", "Stakeholder Management"],
-  hr: ["Recruiting", "People Operations", "Employee Experience", "Stakeholder Management"],
-  supply: ["Demand Planning", "Supply Planning", "Operations", "Forecasting"],
+  marketing: ["Gestao de campanhas", "Pesquisa de mercado", "CRM", "Estrategia de marca"],
+  sales: ["Geracao de leads", "CRM", "Negociacao", "Aceleracao de vendas"],
+  finance: ["Orcamento", "Forecasting", "Analise de risco", "Excel"],
+  product: ["Descoberta de produto", "Roadmap", "Pesquisa com clientes", "Gestao de stakeholders"],
+  engineering: ["Arquitetura de sistemas", "Qualidade de codigo", "Automacao", "Plataformas cloud"],
+  operations: ["Melhoria de processos", "Gestao de projetos", "Forecasting", "Gestao de stakeholders"],
+  hr: ["Recrutamento", "Operacoes de pessoas", "Experiencia do colaborador", "Gestao de stakeholders"],
+  supply: ["Planejamento de demanda", "Planejamento de suprimentos", "Operacoes", "Forecasting"],
 };
 
 const industryCompanies: Record<string, string[]> = {
@@ -36,21 +36,33 @@ const marketSkillTerms = [
   "CRM",
   "Salesforce",
   "HubSpot",
-  "Roadmapping",
-  "Product Discovery",
-  "Stakeholder Management",
-  "Demand Planning",
-  "Supply Planning",
-  "Procurement",
-  "Logistics",
+  "Roadmap",
+  "Descoberta de produto",
+  "Gestao de stakeholders",
+  "Planejamento de demanda",
+  "Planejamento de suprimentos",
+  "Compras",
+  "Logistica",
   "JavaScript",
   "React",
   "Node.js",
   "AWS",
-  "Cloud Platforms",
-  "Recruiting",
-  "People Operations",
+  "Plataformas cloud",
+  "Recrutamento",
+  "Operacoes de pessoas",
 ];
+
+const roleFamilyLabels: Record<string, string> = {
+  marketing: "Marketing",
+  sales: "Vendas",
+  finance: "Financas",
+  product: "Produto",
+  engineering: "Engenharia",
+  operations: "Operacoes",
+  hr: "Recursos humanos",
+  supply: "Supply chain",
+  general: "Geral",
+};
 
 function roleFamily(role: string) {
   const lower = role.toLowerCase();
@@ -90,18 +102,18 @@ export function searchMockJobs(request: DemoReportRequest): RankedOpportunity[] 
     "Northstar Co.",
     "Atlas Group",
   ];
-  const baseSkills = roleSkillMap[family] || ["Stakeholder Management", "Project Management", "Communication", "Execution"];
+  const baseSkills = roleSkillMap[family] || ["Gestao de stakeholders", "Gestao de projetos", "Comunicacao", "Execucao"];
   const postingSkills = extractJobDescriptionSkills(request.jobDescription);
   const requiredSkills = Array.from(new Set([...request.mustHaveKeywords, ...postingSkills, ...baseSkills])).slice(0, 6);
   const location = request.location.trim() || "Qualquer localidade";
   const workModel =
     request.workModel === "any"
-      ? "Flexible"
-      : request.workModel.charAt(0).toUpperCase() + request.workModel.slice(1);
+      ? "Flexivel"
+      : ({ remote: "Remoto", hybrid: "Hibrido", onsite: "Presencial" }[request.workModel] || request.workModel);
 
   return companies.slice(0, 3).map((company, index) => ({
     company,
-    role: index === 0 ? targetRole : `${titleCase(family)} ${index === 1 ? "Especialista" : "Gerente"}`,
+    role: index === 0 ? targetRole : `${roleFamilyLabels[family] || titleCase(family)} ${index === 1 ? "Especialista" : "Gerente"}`,
     location,
     workModel,
     estimatedSalary: index === 0 ? "Salario disponivel apos triagem" : "Nao divulgado",

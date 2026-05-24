@@ -465,8 +465,8 @@ function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]
 <body>
   <main>
     <span class="badge">Exportacao de insights AI Job Radar</span>
-    <h1>${escapeHtml(candidateName)} career intelligence snapshot.</h1>
-    <p class="lead">${escapeHtml(headline)} analyzed across ${roleAnalyses.length} target role${roleAnalyses.length === 1 ? "" : "s"}. This export is personalized from the uploaded CV, extracted profile, selected role strategy, and AI Job Radar fit logic.</p>
+    <h1>Snapshot de inteligencia de carreira de ${escapeHtml(candidateName)}.</h1>
+    <p class="lead">${escapeHtml(headline)} analisado em ${roleAnalyses.length} cargo${roleAnalyses.length === 1 ? "" : "s"}-alvo. Esta exportacao e personalizada a partir do CV enviado, perfil extraido, estrategia de cargos selecionada e logica de fit do AI Job Radar.</p>
     <div class="meta">
       <span class="pill">Gerado em: ${escapeHtml(generatedAt)}</span>
       <span class="pill">CV: ${escapeHtml(report.request.resumeName)}</span>
@@ -475,24 +475,24 @@ function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]
 
     <section class="grid three">
       <div class="card">
-        <p class="muted-label">Current role</p>
+        <p class="muted-label">Cargo atual</p>
         <h3>${escapeHtml(profile.currentRole || "Nao detectado")}</h3>
         <p>${escapeHtml(profile.currentCompany || "Empresa nao detectada")}</p>
       </div>
       <div class="card">
         <p class="muted-label">Sinal de senioridade</p>
         <h3>${escapeHtml([seniorityLabel(profile.seniorityLevel), profile.seniorityConfidence].filter(Boolean).join(" - ") || "Nao detectado")}</h3>
-        <p>Inferred only from CV titles, dates, and context.</p>
+        <p>Inferido apenas por titulos, datas e contexto do CV.</p>
       </div>
       <div class="card">
-        <p class="muted-label">Best match</p>
+        <p class="muted-label">Melhor match</p>
         <h3>${escapeHtml(strongestRole?.targetRole || "Nao disponivel")}</h3>
         <p>${strongestRole ? `${strongestRole.matchScore} match - ${escapeHtml(strongestRole.fitSignal)}` : "Nenhuma analise de cargo disponivel"}</p>
       </div>
     </section>
 
     <section class="card callout">
-      <h2>Executive insight</h2>
+      <h2>Insight executivo</h2>
       <p>${escapeHtml(strongestRole?.reportSummary || report.reportSummary)}</p>
     </section>
 
@@ -512,7 +512,7 @@ function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]
             <div class="bar"><span style="width:${analysis.matchScore}%"></span></div>
             <p>${escapeHtml(analysis.reportSummary)}</p>
             <div class="opportunity">
-              <p class="muted-label">Top opportunity</p>
+              <p class="muted-label">Principal oportunidade</p>
               <h3>${escapeHtml(analysis.rankedOpportunities[0]?.company || "Nao disponivel")}</h3>
               <p>${escapeHtml(analysis.rankedOpportunities[0]?.role || analysis.targetRole)}</p>
             </div>
@@ -529,12 +529,12 @@ function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]
         </div>
       </div>
       <div class="card">
-        <h2>Education, certifications, languages</h2>
-        <p class="muted-label">Education</p>
+        <h2>Formacao, certificacoes e idiomas</h2>
+        <p class="muted-label">Formacao</p>
         <ul>${listItems(profile.education.slice(0, 5))}</ul>
-        <p class="muted-label" style="margin-top:16px">Certifications</p>
+        <p class="muted-label" style="margin-top:16px">Certificacoes</p>
         <ul>${listItems(profile.certifications.slice(0, 5))}</ul>
-        <p class="muted-label" style="margin-top:16px">Languages</p>
+        <p class="muted-label" style="margin-top:16px">Idiomas</p>
         <ul>${listItems(profile.languages.slice(0, 5))}</ul>
       </div>
     </section>
@@ -644,7 +644,7 @@ export function ReportView({
               Nenhum CV processado foi encontrado para este relatorio.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400">
-              Esta pagina foi aberta para {requestedRole}, mas o AI Job Radar nao recebeu um CV lido pelo fluxo de upload. Envie o curriculo primeiro para o relatorio usar perfil, competencias, formacao, idiomas e experiencia reais.
+              Esta pagina foi aberta para {requestedRole}, mas o AI Job Radar nao recebeu um CV lido pelo fluxo de envio. Envie o curriculo primeiro para o relatorio usar perfil, competencias, formacao, idiomas e experiencia reais.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-[auto_auto] sm:justify-start">
               <Button size="lg" onClick={() => router.push("/demo")}>

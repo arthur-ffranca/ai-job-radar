@@ -17,7 +17,7 @@ export default function GeneratingPage() {
             </div>
             <Badge variant="pulse">Gerando relatorio AI Job Radar</Badge>
             <CardTitle className="mt-6 text-3xl leading-tight text-white sm:text-4xl">
-              Comece pelo fluxo de upload.
+              Comece pelo fluxo de envio do CV.
             </CardTitle>
           </CardHeader>
           <CardContent className="p-8 pt-0">
