@@ -37,8 +37,34 @@ function downloadTextFile(filename: string, contents: string) {
   URL.revokeObjectURL(url);
 }
 
+function downloadHtmlFile(filename: string, contents: string) {
+  const blob = new Blob([contents], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "role";
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function listItems(values: string[]) {
+  return values.length
+    ? values.map((value) => `<li>${escapeHtml(value)}</li>`).join("")
+    : "<li>Not detected</li>";
 }
 
 function roleReportText(report: JobRadarReport, analysis: RoleTargetAnalysis) {
@@ -61,6 +87,236 @@ function roleReportText(report: JobRadarReport, analysis: RoleTargetAnalysis) {
       (gap) => `- ${gap.title} (${gap.severity}): ${gap.recommendation}`
     ),
   ].join("\n");
+}
+
+function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]) {
+  const profile = report.parsedProfile;
+  const candidateName = profile.name || "Candidate";
+  const headline = profile.headline || profile.professionalHeadline || profile.currentRole || "Career profile";
+  const strongestRole = [...roleAnalyses].sort((a, b) => b.matchScore - a.matchScore)[0];
+  const generatedAt = new Date(report.generatedAt).toLocaleString();
+  const profileTools = profile.tools.slice(0, 14);
+  const profileSkills = [...profile.technicalSkills, ...profile.businessSkills, ...profile.keywords].slice(0, 18);
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Job Radar Insights - ${escapeHtml(candidateName)}</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #020617;
+      --panel: rgba(15, 23, 42, 0.78);
+      --panel-strong: rgba(2, 6, 23, 0.92);
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --soft: #cbd5e1;
+      --sky: #38bdf8;
+      --emerald: #34d399;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(56,189,248,0.16), transparent 34%),
+        radial-gradient(circle at 88% 12%, rgba(52,211,153,0.12), transparent 30%),
+        linear-gradient(180deg, #020617 0%, #030712 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    body:before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(148,163,184,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,0.08) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+    }
+    main { position: relative; max-width: 1120px; margin: 0 auto; padding: 56px 24px 72px; }
+    .badge {
+      display: inline-flex;
+      border: 1px solid rgba(56,189,248,0.28);
+      background: rgba(56,189,248,0.10);
+      color: #bae6fd;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    h1 { margin: 22px 0 0; font-size: clamp(38px, 6vw, 68px); line-height: 0.98; letter-spacing: 0; }
+    h2 { margin: 0 0 14px; font-size: 22px; }
+    h3 { margin: 0; font-size: 18px; }
+    p { color: var(--muted); margin: 0; }
+    .lead { max-width: 780px; margin-top: 20px; color: #cbd5e1; font-size: 18px; }
+    .meta { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .pill {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+      color: #dbeafe;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+    .grid { display: grid; gap: 16px; }
+    .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    section { margin-top: 34px; }
+    .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(15,23,42,0.86), rgba(2,6,23,0.72));
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 22px 80px rgba(0,0,0,0.28);
+    }
+    .score {
+      font-size: 44px;
+      line-height: 1;
+      font-weight: 800;
+      color: #bbf7d0;
+    }
+    .bar { height: 8px; margin-top: 14px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,0.09); }
+    .bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--sky), var(--emerald)); }
+    .muted-label { color: #64748b; font-size: 12px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em; }
+    ul { margin: 12px 0 0; padding-left: 18px; color: #cbd5e1; }
+    li { margin: 6px 0; }
+    .role-card { display: flex; flex-direction: column; gap: 14px; }
+    .role-top { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+    .opportunity {
+      margin-top: 10px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.035);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .tag-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .tag {
+      border: 1px solid rgba(148,163,184,0.18);
+      background: rgba(255,255,255,0.04);
+      color: #dbeafe;
+      border-radius: 7px;
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+    .callout {
+      border-color: rgba(52,211,153,0.24);
+      background: linear-gradient(135deg, rgba(52,211,153,0.12), rgba(56,189,248,0.08));
+    }
+    @media (max-width: 820px) {
+      main { padding: 36px 16px 48px; }
+      .two, .three { grid-template-columns: 1fr; }
+      .role-top { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">AI Job Radar Insights Export</span>
+    <h1>${escapeHtml(candidateName)} career intelligence snapshot.</h1>
+    <p class="lead">${escapeHtml(headline)} analyzed across ${roleAnalyses.length} target role${roleAnalyses.length === 1 ? "" : "s"}. This export is personalized from the uploaded CV, extracted profile, selected role strategy, and AI Job Radar fit logic.</p>
+    <div class="meta">
+      <span class="pill">Generated: ${escapeHtml(generatedAt)}</span>
+      <span class="pill">Resume: ${escapeHtml(report.request.resumeName)}</span>
+      <span class="pill">Strongest path: ${escapeHtml(strongestRole?.targetRole || report.snapshot.targetRole)}</span>
+    </div>
+
+    <section class="grid three">
+      <div class="card">
+        <p class="muted-label">Current role</p>
+        <h3>${escapeHtml(profile.currentRole || "Not detected")}</h3>
+        <p>${escapeHtml(profile.currentCompany || "Company not detected")}</p>
+      </div>
+      <div class="card">
+        <p class="muted-label">Seniority signal</p>
+        <h3>${escapeHtml([profile.seniorityLevel, profile.seniorityConfidence].filter(Boolean).join(" - ") || "Not detected")}</h3>
+        <p>Inferred only from CV titles, dates, and context.</p>
+      </div>
+      <div class="card">
+        <p class="muted-label">Best match</p>
+        <h3>${escapeHtml(strongestRole?.targetRole || "Not available")}</h3>
+        <p>${strongestRole ? `${strongestRole.matchScore} match - ${escapeHtml(strongestRole.fitSignal)}` : "No role analysis available"}</p>
+      </div>
+    </section>
+
+    <section class="card callout">
+      <h2>Executive insight</h2>
+      <p>${escapeHtml(strongestRole?.reportSummary || report.reportSummary)}</p>
+    </section>
+
+    <section>
+      <h2>Target role comparison</h2>
+      <div class="grid three">
+        ${roleAnalyses.map((analysis, index) => `
+          <article class="card role-card">
+            <div class="role-top">
+              <div>
+                <p class="muted-label">Target role ${index + 1}</p>
+                <h3>${escapeHtml(analysis.targetRole)}</h3>
+                <p>${escapeHtml(analysis.fitSignal)}</p>
+              </div>
+              <div class="score">${analysis.matchScore}</div>
+            </div>
+            <div class="bar"><span style="width:${analysis.matchScore}%"></span></div>
+            <p>${escapeHtml(analysis.reportSummary)}</p>
+            <div class="opportunity">
+              <p class="muted-label">Top opportunity</p>
+              <h3>${escapeHtml(analysis.rankedOpportunities[0]?.company || "Not available")}</h3>
+              <p>${escapeHtml(analysis.rankedOpportunities[0]?.role || analysis.targetRole)}</p>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+
+    <section class="grid two">
+      <div class="card">
+        <h2>Profile strengths detected</h2>
+        <div class="tag-wrap">
+          ${[...profileTools, ...profileSkills].slice(0, 24).map((item) => `<span class="tag">${escapeHtml(item)}</span>`).join("") || `<span class="tag">Not detected</span>`}
+        </div>
+      </div>
+      <div class="card">
+        <h2>Education, certifications, languages</h2>
+        <p class="muted-label">Education</p>
+        <ul>${listItems(profile.education.slice(0, 5))}</ul>
+        <p class="muted-label" style="margin-top:16px">Certifications</p>
+        <ul>${listItems(profile.certifications.slice(0, 5))}</ul>
+        <p class="muted-label" style="margin-top:16px">Languages</p>
+        <ul>${listItems(profile.languages.slice(0, 5))}</ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Role-specific gaps and resume moves</h2>
+      <div class="grid">
+        ${roleAnalyses.map((analysis) => `
+          <article class="card">
+            <h3>${escapeHtml(analysis.targetRole)}</h3>
+            <p style="margin-top:8px">${escapeHtml(analysis.optimizedResume)}</p>
+            <div class="grid two" style="margin-top:16px">
+              <div>
+                <p class="muted-label">Career gaps</p>
+                <ul>${analysis.careerGaps.length ? analysis.careerGaps.map((gap) => `<li><strong>${escapeHtml(gap.title)}</strong> (${escapeHtml(gap.severity)}): ${escapeHtml(gap.recommendation)}</li>`).join("") : "<li>No major gaps detected in this mock analysis.</li>"}</ul>
+              </div>
+              <div>
+                <p class="muted-label">Key skills for this role</p>
+                <ul>${analysis.keySkills.length ? analysis.keySkills.map((skill) => `<li>${escapeHtml(skill.name)} - ${skill.coverage}% coverage</li>`).join("") : "<li>Not detected</li>"}</ul>
+              </div>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  </main>
+</body>
+</html>`;
 }
 
 export function ReportView({
@@ -92,6 +348,7 @@ export function ReportView({
           keySkills: report.keySkills,
         }]
       : [];
+  const insightsExportHtml = report ? insightsHtml(report, roleAnalyses) : "";
 
   const reportText = useMemo(() => {
     if (!report) {
@@ -204,7 +461,7 @@ export function ReportView({
           </p>
         </motion.div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-3">
           <Button
             size="lg"
             onClick={() =>
@@ -213,6 +470,16 @@ export function ReportView({
           >
             <Download />
             Download Primary Resume
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() =>
+              downloadHtmlFile("ai-job-radar-insights.html", insightsExportHtml)
+            }
+          >
+            <Radar />
+            Download Insights
           </Button>
           <Button
             size="lg"
