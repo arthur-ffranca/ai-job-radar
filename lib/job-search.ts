@@ -93,8 +93,59 @@ function extractJobDescriptionSkills(description = "") {
   return marketSkillTerms.filter((term) => lower.includes(term.toLowerCase()));
 }
 
+export function buildJobSearchTerms(targetRole: string): string[] {
+  const role = targetRole.toLowerCase().trim();
+
+  if (/(data analyst|analista de dados|analytics analyst)/.test(role)) {
+    return [
+      "Data Analyst",
+      "Analista de Dados",
+      "Business Intelligence Analyst",
+      "BI Analyst",
+      "Analytics Analyst",
+      "Product Data Analyst",
+    ];
+  }
+
+  if (/(bi analyst|business intelligence|analista de bi)/.test(role)) {
+    return [
+      "BI Analyst",
+      "Business Intelligence Analyst",
+      "Analista de BI",
+      "Power BI Analyst",
+      "Data Visualization Analyst",
+      "Analytics Analyst",
+    ];
+  }
+
+  if (/(data engineer|engenheiro de dados|analytics engineer|etl)/.test(role)) {
+    return [
+      "Data Engineer",
+      "Engenheiro de Dados",
+      "Analytics Engineer",
+      "Data Pipeline Engineer",
+      "Big Data Engineer",
+      "ETL Developer",
+    ];
+  }
+
+  if (/(fp&a|financial analyst|finance|planejamento financeiro|analista financeiro)/.test(role)) {
+    return [
+      "FP&A Analyst",
+      "Financial Analyst",
+      "Analista Financeiro",
+      "Planejamento Financeiro",
+      "Finance Business Partner",
+    ];
+  }
+
+  return targetRole ? [targetRole] : [];
+}
+
 export function buildOpportunitySet(request: DemoReportRequest): RankedOpportunity[] {
   const targetRole = request.targetRole.trim() || "Cargo selecionado";
+  const roleTerms = buildJobSearchTerms(targetRole);
+  const primaryRoleTerm = roleTerms[0] || targetRole;
   const family = roleFamily(targetRole);
   const industryKey = request.desiredIndustry.toLowerCase();
   const companies = industryCompanies[industryKey] || industryCompanies[family] || [
@@ -113,7 +164,7 @@ export function buildOpportunitySet(request: DemoReportRequest): RankedOpportuni
 
   return companies.slice(0, 3).map((company, index) => ({
     company,
-    role: index === 0 ? targetRole : `${roleFamilyLabels[family] || titleCase(family)} ${index === 1 ? "Especialista" : "Gerente"}`,
+    role: index === 0 ? primaryRoleTerm : `${roleFamilyLabels[family] || titleCase(family)} ${index === 1 ? "Especialista" : "Gerente"}`,
     location,
     workModel,
     estimatedSalary: index === 0 ? "Salario disponivel apos triagem" : "Nao divulgado",

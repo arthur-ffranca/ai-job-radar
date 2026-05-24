@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReportFeedbackCard } from "@/components/feedback/report-feedback-card";
 import { GlobalMarketIntelligence } from "@/components/report/global-market-intelligence";
-import { readStoredDemoReport } from "@/lib/job-radar-client";
+import { clearStoredDemoReport, readStoredDemoReport } from "@/lib/job-radar-client";
 import type { DemoReportRequest, JobRadarReport, RoleTargetAnalysis } from "@/lib/job-radar-types";
 
 function downloadHtmlFile(filename: string, contents: string) {
@@ -620,9 +620,7 @@ export function ReportView({
   }
 
   function deleteAnalysis() {
-    window.sessionStorage.removeItem("ai-job-radar:last-report");
-    window.sessionStorage.removeItem("ai-job-radar:active-analysis-id");
-    window.localStorage.removeItem("ai-job-radar:last-report");
+    clearStoredDemoReport();
     router.push("/demo");
   }
 
@@ -762,7 +760,11 @@ export function ReportView({
         </div>
       </div>
 
-      <GlobalMarketIntelligence />
+      <GlobalMarketIntelligence
+        targetRole={report.request.targetRole}
+        location={report.request.location}
+        workModel={workModelLabel(report.request.workModel)}
+      />
 
       <div className="mb-6 mt-12">
         <Badge variant="pulse">Insights pessoais de carreira</Badge>

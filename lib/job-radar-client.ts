@@ -1,11 +1,10 @@
 import type { DemoReportRequest, JobRadarReport } from "@/lib/job-radar-types";
 
-const REPORT_STORAGE_KEY = "ai-job-radar:last-report";
-const ACTIVE_ANALYSIS_KEY = "ai-job-radar:active-analysis-id";
-
 export type AnalyzeReportRequest = DemoReportRequest & {
   cvFile?: File | null;
 };
+
+let currentAnalysisReport: JobRadarReport | null = null;
 
 function safeJson(value: unknown) {
   try {
@@ -15,7 +14,7 @@ function safeJson(value: unknown) {
   }
 }
 
-function assertBrowserStorage() {
+function assertBrowserRuntime() {
   if (typeof window === "undefined") {
     throw new Error("Este fluxo so pode rodar no navegador.");
   }
@@ -25,7 +24,8 @@ export async function analyzeDemoReport(
   request: AnalyzeReportRequest,
   analysisId: string
 ): Promise<JobRadarReport> {
-  assertBrowserStorage();
+  assertBrowserRuntime();
+  currentAnalysisReport = null;
 
   const formData = new FormData();
   formData.append("analysisId", analysisId);
@@ -46,10 +46,6 @@ export async function analyzeDemoReport(
     formData.append("file", request.cvFile);
   }
 
-  window.sessionStorage.setItem(ACTIVE_ANALYSIS_KEY, analysisId);
-  window.sessionStorage.removeItem(REPORT_STORAGE_KEY);
-  window.localStorage.removeItem(REPORT_STORAGE_KEY);
-
   const response = await fetch("/api/analyze", {
     method: "POST",
     body: formData,
@@ -67,45 +63,22 @@ export async function analyzeDemoReport(
   }
 
   const report = result as JobRadarReport;
-  window.sessionStorage.setItem(REPORT_STORAGE_KEY, JSON.stringify(report));
-  window.sessionStorage.setItem(ACTIVE_ANALYSIS_KEY, report.analysisId);
-  window.localStorage.removeItem(REPORT_STORAGE_KEY);
-
+  currentAnalysisReport = report;
   return report;
 }
 
 export function readStoredDemoReport(expectedAnalysisId?: string): JobRadarReport | null {
-  if (typeof window === "undefined") {
+  if (!currentAnalysisReport) {
     return null;
   }
 
-  const activeAnalysisId = window.sessionStorage.getItem(ACTIVE_ANALYSIS_KEY);
-  const stored = window.sessionStorage.getItem(REPORT_STORAGE_KEY);
-  window.localStorage.removeItem(REPORT_STORAGE_KEY);
-
-  if (!stored || !activeAnalysisId) {
+  if (expectedAnalysisId && currentAnalysisReport.analysisId !== expectedAnalysisId) {
     return null;
   }
 
-  try {
-    const report = JSON.parse(stored) as JobRadarReport;
-    const matchesActiveAnalysis = report.analysisId === activeAnalysisId;
-    const matchesRequestedAnalysis = expectedAnalysisId
-      ? report.analysisId === expectedAnalysisId
-      : true;
-
-    return matchesActiveAnalysis && matchesRequestedAnalysis ? report : null;
-  } catch {
-    return null;
-  }
+  return currentAnalysisReport;
 }
 
 export function clearStoredDemoReport() {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.sessionStorage.removeItem(REPORT_STORAGE_KEY);
-  window.sessionStorage.removeItem(ACTIVE_ANALYSIS_KEY);
-  window.localStorage.removeItem(REPORT_STORAGE_KEY);
+  currentAnalysisReport = null;
 }

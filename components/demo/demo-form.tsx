@@ -245,6 +245,22 @@ export function DemoForm() {
     field: K,
     value: UploadFormData[K]
   ) {
+    if (
+      field === "targetRole" ||
+      field === "targetRoles" ||
+      field === "jobDescription" ||
+      field === "location" ||
+      field === "workModel" ||
+      field === "seniority" ||
+      field === "desiredIndustry" ||
+      field === "mustHaveKeywords" ||
+      field === "avoidKeywords"
+    ) {
+      activeAnalysisIdRef.current = null;
+      clearStoredDemoReport();
+      setIsLoading(false);
+    }
+
     setFormData((prev) => ({
       ...prev,
       [field]: value,

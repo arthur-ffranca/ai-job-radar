@@ -31,8 +31,6 @@ export function ReportFeedbackCard() {
 
     console.log("[AI Job Radar] feedback do relatorio", payload);
 
-    const stored = JSON.parse(localStorage.getItem("ai-job-radar-feedback") || "[]") as ReportFeedback[];
-    localStorage.setItem("ai-job-radar-feedback", JSON.stringify([payload, ...stored].slice(0, 20)));
     setSubmitted(true);
   }
 
