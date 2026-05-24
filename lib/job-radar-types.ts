@@ -8,6 +8,7 @@ export type DemoReportRequest = {
   parsedProfile?: ParsedProfile | null;
   targetRole: string;
   targetRoles?: string[];
+  jobDescription?: string;
   location: string;
   workModel: WorkModel;
   seniority: Seniority;

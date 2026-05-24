@@ -7,6 +7,7 @@ import { buildCareerGaps, optimizeResumeDraft } from "@/lib/resume-optimizer";
 const fallbackRequest: DemoReportRequest = {
   resumeName: "No CV uploaded",
   targetRole: "Selected Role",
+  jobDescription: "",
   location: "",
   workModel: "any",
   seniority: "Any",
@@ -28,6 +29,7 @@ export function generateReport(request: Partial<DemoReportRequest> = {}): JobRad
     ...request,
     targetRole: targetRoles[0] || fallbackRequest.targetRole,
     targetRoles,
+    jobDescription: request.jobDescription?.trim() || "",
     location: request.location?.trim() || fallbackRequest.location,
     desiredIndustry: request.desiredIndustry?.trim() || "",
     mustHaveKeywords: request.mustHaveKeywords || [],

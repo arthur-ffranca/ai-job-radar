@@ -28,10 +28,10 @@ import { cn } from "@/lib/utils";
 
 const seniorityOptions: Seniority[] = ["Any", "Junior", "Mid-level", "Senior", "Lead"];
 const workModelOptions: { label: string; value: WorkModel }[] = [
-  { label: "Any", value: "any" },
-  { label: "Remote", value: "remote" },
-  { label: "Hybrid", value: "hybrid" },
-  { label: "Onsite", value: "onsite" },
+  { label: "Qualquer", value: "any" },
+  { label: "Remoto", value: "remote" },
+  { label: "Hibrido", value: "hybrid" },
+  { label: "Presencial", value: "onsite" },
 ];
 
 function parseKeywords(value: string) {
@@ -50,6 +50,7 @@ type UploadFormData = {
   parserDebug: unknown;
   targetRole: string;
   targetRoles: string[];
+  jobDescription: string;
   location: string;
   workModel: WorkModel;
   seniority: Seniority;
@@ -68,6 +69,7 @@ const initialFormData: UploadFormData = {
   parserDebug: null,
   targetRole: "",
   targetRoles: [],
+  jobDescription: "",
   location: "",
   workModel: "any",
   seniority: "Any",
@@ -116,6 +118,7 @@ export function DemoForm() {
         targetRoles: prev.targetRoles.length
           ? prev.targetRoles
           : parseKeywords(params.get("targetRole") || "").slice(0, 3),
+        jobDescription: prev.jobDescription || params.get("jobDescription") || "",
         location: prev.location || params.get("location") || "",
         workModel: prev.workModel !== "any" ? prev.workModel : normalizeWorkModel(params.get("workModel")),
         seniority: prev.seniority !== "Any" ? prev.seniority : normalizeSeniority(params.get("seniority")),
@@ -124,7 +127,7 @@ export function DemoForm() {
         avoidKeywords: prev.avoidKeywords || params.get("avoidKeywords") || "",
         uploadStatus: resumeName ? "error" : prev.uploadStatus,
         uploadMessage: resumeName
-          ? `The previous file "${resumeName}" cannot be restored from the URL. Select the CV again to parse it.`
+          ? `O arquivo anterior "${resumeName}" nao pode ser restaurado pela URL. Selecione o CV novamente para leitura.`
           : prev.uploadMessage,
       }));
 
@@ -137,7 +140,7 @@ export function DemoForm() {
       setFormData((prev) => ({
         ...prev,
         uploadStatus: "idle",
-        uploadMessage: "Checking your account session. Try again in a moment.",
+        uploadMessage: "Verificando sua sessao. Tente novamente em instantes.",
       }));
       return;
     }
@@ -155,8 +158,8 @@ export function DemoForm() {
         ...prev,
         uploadStatus: "error",
         uploadMessage: formData.cvFile
-          ? "CV parsing has not completed. Wait for the parser result before generating the report."
-          : "Upload and parse a CV before generating the report.",
+          ? "A leitura do CV ainda nao terminou. Aguarde o parser antes de gerar o relatorio."
+          : "Envie e processe um CV antes de gerar o relatorio.",
       }));
       return;
     }
@@ -169,7 +172,7 @@ export function DemoForm() {
       setFormData((prev) => ({
         ...prev,
         uploadStatus: "error",
-        uploadMessage: "Choose at least one target role before generating the report.",
+        uploadMessage: "Escolha pelo menos um cargo-alvo antes de gerar o relatorio.",
       }));
       return;
     }
@@ -177,11 +180,12 @@ export function DemoForm() {
     setIsLoading(true);
 
     const payload = {
-      resumeName: formData.cvFileName || "No CV uploaded",
+      resumeName: formData.cvFileName || "Nenhum CV enviado",
       resumeText: formData.rawCvText,
       parsedProfile: formData.parsedProfile,
       targetRole: selectedTargetRoles[0],
       targetRoles: selectedTargetRoles,
+      jobDescription: formData.jobDescription.trim(),
       location: formData.location.trim(),
       workModel: formData.workModel,
       seniority: formData.seniority,
@@ -242,7 +246,7 @@ export function DemoForm() {
       setFormData((prev) => ({
         ...prev,
         uploadStatus: "error",
-        uploadMessage: "Select a CV file before parsing.",
+        uploadMessage: "Selecione um arquivo de CV antes da leitura.",
       }));
       return;
     }
@@ -256,7 +260,7 @@ export function DemoForm() {
         parsedProfile: null,
         parserDebug: null,
         uploadStatus: "error",
-        uploadMessage: "Only PDF and DOCX files are supported.",
+        uploadMessage: "Apenas arquivos PDF e DOCX sao suportados.",
       }));
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -271,7 +275,7 @@ export function DemoForm() {
       rawCvText: "",
       parserDebug: null,
       uploadStatus: "parsing",
-      uploadMessage: "Parsing CV...",
+      uploadMessage: "Lendo CV...",
     }));
 
     setIsParsing(true);
@@ -291,7 +295,7 @@ export function DemoForm() {
           cvFileName: file.name,
           rawCvText: response.raw_text,
           uploadStatus: "success",
-          uploadMessage: "CV parsed successfully",
+          uploadMessage: "CV lido com sucesso",
           parsedProfile,
           parserDebug: response,
           targetRole:
@@ -397,10 +401,10 @@ export function DemoForm() {
             <Sparkles className="size-5" />
           </div>
           <CardTitle className="text-3xl leading-tight text-white">
-            Generate an AI Job Report
+            Gerar relatorio de inteligencia
           </CardTitle>
           <p className="max-w-xl text-sm leading-6 text-slate-400">
-            Upload a resume, choose your target, and preview how AI Job Radar turns job search noise into a focused strategy.
+            Envie seu CV, escolha seus cargos-alvo e veja como o AI Job Radar transforma vagas soltas em uma estrategia clara.
           </p>
         </CardHeader>
         <CardContent className="p-6 pt-0 sm:p-8 sm:pt-0">
@@ -408,7 +412,7 @@ export function DemoForm() {
             <label className="block">
               <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
                 <Upload className="size-4 text-emerald-200" />
-                Resume upload
+                Upload do CV
               </span>
               <input
                 ref={fileInputRef}
@@ -420,7 +424,7 @@ export function DemoForm() {
                 className="block w-full cursor-pointer rounded-lg border border-dashed border-white/15 bg-slate-950/55 p-4 text-sm text-slate-400 file:mr-4 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-950 hover:border-sky-300/25 disabled:cursor-not-allowed disabled:opacity-60"
               />
               <p className="mt-2 text-xs text-slate-500">
-                PDF or DOCX only. Files are sent as multipart/form-data to the resume parser.
+                Apenas PDF ou DOCX. O arquivo e enviado como multipart/form-data para o parser de curriculos.
               </p>
               {formData.cvFileName ? (
                 <div className="mt-3 flex flex-col gap-2 rounded-md border border-white/10 bg-white/[0.035] p-3 sm:flex-row sm:items-center sm:justify-between">
@@ -448,7 +452,7 @@ export function DemoForm() {
                     disabled={isLoading || isParsing}
                     onClick={handleRemoveFile}
                   >
-                    Remove file
+                    Remover arquivo
                   </Button>
                 </div>
               ) : formData.uploadMessage ? (
@@ -469,13 +473,13 @@ export function DemoForm() {
               <label className="block">
                 <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
                   <BriefcaseBusiness className="size-4 text-sky-200" />
-                  Target roles
+                  Cargos-alvo
                 </span>
                 <Input
                   name="targetRole"
                   disabled={isLoading}
                   value={formData.targetRole}
-                  placeholder="Type a role, then add it. Up to 3 roles."
+                  placeholder="Digite um cargo e adicione. Ate 3 cargos."
                   onChange={(event) =>
                     updateFormField("targetRole", event.target.value)
                   }
@@ -506,25 +510,25 @@ export function DemoForm() {
                       disabled={isLoading || !formData.targetRole.trim()}
                       onClick={addTargetRole}
                     >
-                      Add role
+                      Adicionar cargo
                     </Button>
                   ) : null}
                 </div>
                 <p className="mt-2 text-xs leading-5 text-slate-500">
-                  AI Job Radar will compare each target role and generate a separate resume review and download for each one.
+                  O AI Job Radar compara cada cargo e gera uma revisao de CV separada para download.
                 </p>
               </label>
 
               <label className="block">
                 <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
                   <MapPin className="size-4 text-sky-200" />
-                  Location
+                  Localidade
                 </span>
                 <Input
                   name="location"
                   disabled={isLoading}
                   value={formData.location}
-                  placeholder="e.g. São Paulo, London, Remote"
+                  placeholder="Ex.: Sao Paulo, remoto, Rio de Janeiro"
                   onChange={(event) =>
                     updateFormField("location", event.target.value)
                   }
@@ -537,7 +541,7 @@ export function DemoForm() {
               <label className="block">
                 <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
                   <UserRound className="size-4 text-emerald-200" />
-                  Seniority
+                  Senioridade
                 </span>
                 <select
                   name="seniority"
@@ -559,7 +563,7 @@ export function DemoForm() {
               <label className="block">
                 <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
                   <MapPin className="size-4 text-emerald-200" />
-                  Work model
+                  Modelo de trabalho
                 </span>
                 <select
                   name="workModel"
@@ -582,13 +586,13 @@ export function DemoForm() {
             <label className="block">
               <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
                 <Building2 className="size-4 text-sky-200" />
-                Desired industry
+                Industria desejada
               </span>
               <Input
                 name="desiredIndustry"
                 disabled={isLoading}
                 value={formData.desiredIndustry}
-                placeholder="e.g. SaaS, Healthcare, Retail, Finance"
+                placeholder="Ex.: SaaS, Saude, Varejo, Financeiro"
                 onChange={(event) =>
                   updateFormField("desiredIndustry", event.target.value)
                 }
@@ -596,17 +600,37 @@ export function DemoForm() {
               />
             </label>
 
+            <label className="block">
+              <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
+                <FileText className="size-4 text-emerald-200" />
+                Cole uma vaga especifica
+              </span>
+              <textarea
+                name="jobDescription"
+                disabled={isLoading}
+                value={formData.jobDescription}
+                placeholder="Cole a descricao da vaga aqui. O AI Job Radar extrai requisitos especificos e usa isso para gerar score, gaps e sugestoes de reescrita mais precisas."
+                onChange={(event) =>
+                  updateFormField("jobDescription", event.target.value)
+                }
+                className="min-h-32 w-full resize-y rounded-md border border-white/10 bg-slate-950/55 px-3 py-3 text-sm leading-6 text-white outline-none ring-offset-background transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+              />
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                Opcional, mas recomendado. Quando voce cola uma vaga, o relatorio fica especifico para aquela oportunidade em vez de usar apenas sinais gerais de mercado.
+              </p>
+            </label>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
                 <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
                   <Sparkles className="size-4 text-emerald-200" />
-                  Must-have keywords
+                  Palavras obrigatorias
                 </span>
                 <Input
                   name="mustHaveKeywords"
                   disabled={isLoading}
                   value={formData.mustHaveKeywords}
-                  placeholder="CRM, hiring, forecasting"
+                  placeholder="CRM, recrutamento, forecasting"
                   onChange={(event) =>
                     updateFormField("mustHaveKeywords", event.target.value)
                   }
@@ -617,13 +641,13 @@ export function DemoForm() {
               <label className="block">
                 <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
                   <CircleSlash className="size-4 text-sky-200" />
-                  Avoid keywords
+                  Palavras a evitar
                 </span>
                 <Input
                   name="avoidKeywords"
                   disabled={isLoading}
                   value={formData.avoidKeywords}
-                  placeholder="internship, commission-only"
+                  placeholder="estagio, comissao, PJ"
                   onChange={(event) =>
                     updateFormField("avoidKeywords", event.target.value)
                   }
@@ -641,16 +665,16 @@ export function DemoForm() {
               {isParsing ? (
                 <>
                   <Loader2 className="animate-spin" />
-                  Parsing CV
+                  Lendo CV
                 </>
               ) : isLoading ? (
                 <>
                   <Loader2 className="animate-spin" />
-                  Generating AI Job Report
+                  Gerando relatorio
                 </>
               ) : (
                 <>
-                  Generate AI Job Report
+                  Gerar relatorio
                   <ArrowRight />
                 </>
               )}
@@ -674,14 +698,14 @@ export function DemoForm() {
             <div>
               <p className="text-sm font-medium text-white">
                 {isParsing
-                  ? "Reading resume"
+                  ? "Lendo curriculo"
                   : formData.uploadStatus === "success"
-                    ? "Resume parsed"
-                    : "Resume parser ready"}
+                    ? "Curriculo lido"
+                    : "Parser pronto"}
               </p>
               <p className="mt-1 text-sm leading-5 text-slate-400">
                 {formData.uploadMessage ||
-                  "Upload a PDF or DOCX to extract profile signals before generating the report."}
+                  "Envie um PDF ou DOCX para extrair sinais do perfil antes de gerar o relatorio."}
               </p>
             </div>
           </div>

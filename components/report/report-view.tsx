@@ -22,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BetaFeedbackCard } from "@/components/feedback/beta-feedback-card";
 import { GlobalMarketIntelligence } from "@/components/report/global-market-intelligence";
 import { readStoredDemoReport } from "@/lib/job-radar-client";
 import type { DemoReportRequest, JobRadarReport, RoleTargetAnalysis } from "@/lib/job-radar-types";
@@ -69,24 +70,63 @@ function listItems(values: string[]) {
 
 function roleReportText(report: JobRadarReport, analysis: RoleTargetAnalysis) {
   return [
-    `AI Job Radar Role Report: ${analysis.targetRole}`,
-    `Generated: ${new Date(report.generatedAt).toLocaleString()}`,
+    `Relatorio por cargo AI Job Radar: ${analysis.targetRole}`,
+    `Gerado em: ${new Date(report.generatedAt).toLocaleString()}`,
     `Resume: ${report.request.resumeName}`,
     `Match score: ${analysis.matchScore}`,
     `Fit signal: ${analysis.fitSignal}`,
     "",
     analysis.reportSummary,
     "",
-    "Top opportunities:",
+    "Oportunidades priorizadas:",
     ...analysis.rankedOpportunities.map(
       (job) => `- ${job.company}: ${job.matchScore} match (${job.requiredSkills.join(", ")})`
     ),
     "",
-    "Career gaps:",
+    "Gaps de carreira:",
     ...analysis.careerGaps.map(
       (gap) => `- ${gap.title} (${gap.severity}): ${gap.recommendation}`
     ),
   ].join("\n");
+}
+
+function resumeRewriteBlocks(report: JobRadarReport, analysis: RoleTargetAnalysis) {
+  const profile = report.parsedProfile;
+  const strongestSignals = [
+    ...profile.tools,
+    ...profile.technicalSkills,
+    ...profile.businessSkills,
+    ...profile.keywords,
+  ].filter(Boolean).slice(0, 8);
+  const topJob = analysis.rankedOpportunities[0];
+  const requiredSkills = topJob?.requiredSkills || [];
+  const missingSkills = topJob?.profileGaps || [];
+
+  return {
+    original:
+      profile.professionalHeadline ||
+      profile.currentRole ||
+      "O CV atual ainda nao deixa claro o posicionamento profissional.",
+    optimized: [
+      profile.currentRole || analysis.targetRole,
+      strongestSignals.length ? `com evidencias em ${strongestSignals.slice(0, 4).join(", ")}` : "com impacto profissional mensuravel",
+      `posicionado para ${analysis.targetRole}`,
+    ].filter(Boolean).join(" "),
+    why: report.request.jobDescription
+      ? "Esta reescrita prioriza a vaga colada e usa o CV para manter cada afirmacao baseada na experiencia real da pessoa."
+      : "Esta reescrita usa o cargo-alvo e sinais gerais de mercado porque nenhuma vaga especifica foi colada.",
+    bullets: [
+      strongestSignals.length
+        ? `Abrir o CV com provas ligadas a ${strongestSignals.slice(0, 3).join(", ")}.`
+        : "Adicionar um resumo inicial mais forte com resultados mensuraveis do CV.",
+      requiredSkills.length
+        ? `Espelhar linguagem verdadeira da vaga: ${requiredSkills.slice(0, 4).join(", ")}.`
+        : "Espelhar apenas requisitos que tenham suporte no CV.",
+      missingSkills.length
+        ? `Adicionar ou reforcar evidencias para: ${missingSkills.slice(0, 3).join(", ")}.`
+        : "Manter o CV focado; nenhum gap critico apareceu nesta analise demonstrativa.",
+    ],
+  };
 }
 
 function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]) {
@@ -452,12 +492,12 @@ export function ReportView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55 }}
         >
-          <Badge variant="pulse">Career Intelligence Report</Badge>
+          <Badge variant="pulse">Relatorio de inteligencia de carreira</Badge>
           <h1 className="mt-7 text-balance text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-            Your job intelligence report is ready.
+            Seu relatorio de inteligencia esta pronto.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">
-            A strategic view of your fit, strongest opportunities, missing proof points, and role-specific resume revisions. Each target role gets its own optimized resume direction and downloadable report.
+            Uma visao estrategica do seu fit, melhores oportunidades, provas ausentes e revisoes de CV por cargo. Cada cargo-alvo recebe uma direcao propria de curriculo e relatorio para download.
           </p>
         </motion.div>
 
@@ -469,7 +509,7 @@ export function ReportView({
             }
           >
             <Download />
-            Download Primary Resume
+            Baixar CV principal
           </Button>
           <Button
             size="lg"
@@ -479,7 +519,7 @@ export function ReportView({
             }
           >
             <Radar />
-            Download Insights
+            Baixar insights
           </Button>
           <Button
             size="lg"
@@ -487,7 +527,7 @@ export function ReportView({
             onClick={() => downloadTextFile("ai-job-radar-report.txt", reportText)}
           >
             <FileText />
-            Download Full Report
+            Baixar relatorio
           </Button>
         </div>
       </div>
@@ -495,12 +535,12 @@ export function ReportView({
       <GlobalMarketIntelligence />
 
       <div className="mb-6 mt-12">
-        <Badge variant="pulse">Personal Career Insights</Badge>
+        <Badge variant="pulse">Insights pessoais de carreira</Badge>
         <h2 className="mt-4 text-2xl font-semibold text-white sm:text-3xl">
-          Your private profile fit and application strategy.
+          Seu fit privado e sua estrategia de candidatura.
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
-          These insights use your uploaded CV, selected target role, and generated report. They are separate from the global market layer above.
+          Estes insights usam o CV enviado, os cargos escolhidos e o relatorio gerado. Eles ficam separados da camada global de mercado acima.
         </p>
       </div>
 
@@ -508,10 +548,10 @@ export function ReportView({
         <CardHeader className="p-5">
           <div className="flex items-center gap-3">
             <BriefcaseBusiness className="size-5 text-sky-200" />
-            <CardTitle className="text-xl">Target role strategy comparison</CardTitle>
+            <CardTitle className="text-xl">Comparacao de estrategia por cargo</CardTitle>
           </div>
           <p className="text-sm leading-6 text-slate-400">
-            AI Job Radar creates a separate CV review for each selected target role, so users can compare paths and download tailored assets instead of using one generic resume.
+            O AI Job Radar cria uma revisao de CV separada para cada cargo-alvo, assim a pessoa compara caminhos e baixa materiais especificos em vez de usar um curriculo generico.
           </p>
         </CardHeader>
         <CardContent className="grid gap-3 p-5 pt-0 lg:grid-cols-3">
@@ -522,7 +562,7 @@ export function ReportView({
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs text-slate-500">Target role {index + 1}</p>
+                  <p className="text-xs text-slate-500">Cargo-alvo {index + 1}</p>
                   <h3 className="mt-1 text-lg font-semibold text-white">
                     {analysis.targetRole}
                   </h3>
@@ -535,7 +575,7 @@ export function ReportView({
                 </div>
               </div>
               <Badge variant={index === 0 ? "pulse" : "outline"} className="mt-4">
-                {index === 0 ? "Primary recommendation" : analysis.fitSignal}
+                {index === 0 ? "Recomendacao principal" : analysis.fitSignal}
               </Badge>
               <p className="mt-4 text-sm leading-6 text-slate-400">
                 {analysis.reportSummary}
@@ -552,7 +592,7 @@ export function ReportView({
                   }
                 >
                   <Download />
-                  Download role CV
+                  Baixar CV do cargo
                 </Button>
                 <Button
                   type="button"
@@ -566,11 +606,76 @@ export function ReportView({
                   }
                 >
                   <FileText />
-                  Download role report
+                  Baixar relatorio do cargo
                 </Button>
               </div>
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      <Card className="mb-6 border-white/10 bg-slate-950/82 shadow-panel backdrop-blur">
+        <CardHeader className="p-5">
+          <div className="flex items-center gap-3">
+            <FileText className="size-5 text-emerald-200" />
+            <CardTitle className="text-xl">Estudio de reescrita do CV</CardTitle>
+          </div>
+          <p className="text-sm leading-6 text-slate-400">
+            Cada bloco mostra como reposicionar o mesmo CV para um cargo ou vaga especifica. A logica nao inventa experiencia: ela muda enfase, ordem das provas e linguagem.
+          </p>
+        </CardHeader>
+        <CardContent className="grid gap-3 p-5 pt-0 lg:grid-cols-3">
+          {roleAnalyses.map((analysis) => {
+            const rewrite = resumeRewriteBlocks(report, analysis);
+
+            return (
+              <div
+                key={`rewrite-${analysis.targetRole}`}
+                className="rounded-lg border border-white/10 bg-white/[0.035] p-4 transition duration-300 hover:-translate-y-0.5 hover:border-emerald-300/25"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs text-slate-500">Cargo-alvo</p>
+                    <h3 className="mt-1 text-lg font-semibold text-white">
+                      {analysis.targetRole}
+                    </h3>
+                  </div>
+                  {report.request.jobDescription ? (
+                    <Badge variant="pulse">Vaga colada</Badge>
+                  ) : (
+                    <Badge variant="outline">Mercado</Badge>
+                  )}
+                </div>
+
+                <div className="mt-4 grid gap-3">
+                  <div className="rounded-md border border-white/10 bg-slate-950/55 p-3">
+                    <p className="text-xs text-slate-500">Posicionamento atual</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                      {rewrite.original}
+                    </p>
+                  </div>
+                  <div className="rounded-md border border-emerald-300/20 bg-emerald-300/10 p-3">
+                    <p className="text-xs text-emerald-100/70">Posicionamento otimizado</p>
+                    <p className="mt-2 text-sm font-medium leading-6 text-white">
+                      {rewrite.optimized}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="mt-4 text-sm leading-6 text-slate-400">
+                  {rewrite.why}
+                </p>
+                <div className="mt-4 space-y-2">
+                  {rewrite.bullets.map((bullet) => (
+                    <div key={bullet} className="flex gap-2 text-sm leading-6 text-slate-300">
+                      <Check className="mt-1 size-4 shrink-0 text-emerald-200" />
+                      <span>{bullet}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
 
@@ -633,6 +738,7 @@ export function ReportView({
                 ["Work model", report.request.workModel],
                 ["Seniority", report.request.seniority],
                 ["Industry", report.request.desiredIndustry || "Any industry"],
+                ["Vaga colada", report.request.jobDescription ? "Usada na analise" : "Nao informada"],
               ].map(([label, value]) => (
                 <div
                   key={label}
@@ -859,6 +965,10 @@ export function ReportView({
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <BetaFeedbackCard />
       </div>
     </div>
   );

@@ -22,6 +22,36 @@ const industryCompanies: Record<string, string[]> = {
   saas: ["HubSpot", "Salesforce", "Notion"],
 };
 
+const marketSkillTerms = [
+  "SQL",
+  "Python",
+  "Excel",
+  "Power BI",
+  "Tableau",
+  "Forecasting",
+  "Budgeting",
+  "P&L",
+  "Anaplan",
+  "SAP",
+  "CRM",
+  "Salesforce",
+  "HubSpot",
+  "Roadmapping",
+  "Product Discovery",
+  "Stakeholder Management",
+  "Demand Planning",
+  "Supply Planning",
+  "Procurement",
+  "Logistics",
+  "JavaScript",
+  "React",
+  "Node.js",
+  "AWS",
+  "Cloud Platforms",
+  "Recruiting",
+  "People Operations",
+];
+
 function roleFamily(role: string) {
   const lower = role.toLowerCase();
 
@@ -45,6 +75,12 @@ function titleCase(value: string) {
     .join(" ");
 }
 
+function extractJobDescriptionSkills(description = "") {
+  const lower = description.toLowerCase();
+
+  return marketSkillTerms.filter((term) => lower.includes(term.toLowerCase()));
+}
+
 export function searchMockJobs(request: DemoReportRequest): RankedOpportunity[] {
   const targetRole = request.targetRole.trim() || "Selected Role";
   const family = roleFamily(targetRole);
@@ -55,7 +91,8 @@ export function searchMockJobs(request: DemoReportRequest): RankedOpportunity[] 
     "Atlas Group",
   ];
   const baseSkills = roleSkillMap[family] || ["Stakeholder Management", "Project Management", "Communication", "Execution"];
-  const requiredSkills = Array.from(new Set([...request.mustHaveKeywords, ...baseSkills])).slice(0, 5);
+  const postingSkills = extractJobDescriptionSkills(request.jobDescription);
+  const requiredSkills = Array.from(new Set([...request.mustHaveKeywords, ...postingSkills, ...baseSkills])).slice(0, 6);
   const location = request.location.trim() || "Any location";
   const workModel =
     request.workModel === "any"
@@ -71,6 +108,8 @@ export function searchMockJobs(request: DemoReportRequest): RankedOpportunity[] 
     matchScore: 0,
     requiredSkills,
     profileGaps: [],
-    description: `${company} is hiring for ${targetRole} with emphasis on ${requiredSkills.join(", ")}. The role expects ${request.seniority === "Any" ? "role-appropriate" : request.seniority.toLowerCase()} ownership and ${workModel.toLowerCase()} collaboration.`,
+    description: request.jobDescription
+      ? `${company} posting intelligence for ${targetRole}: ${request.jobDescription.slice(0, 520)}`
+      : `${company} is hiring for ${targetRole} with emphasis on ${requiredSkills.join(", ")}. The role expects ${request.seniority === "Any" ? "role-appropriate" : request.seniority.toLowerCase()} ownership and ${workModel.toLowerCase()} collaboration.`,
   }));
 }

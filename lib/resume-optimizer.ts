@@ -48,6 +48,9 @@ export function optimizeResumeDraft(
       ? `Lead with evidence around ${strongestSignals.join(", ")} because those signals appear in the uploaded profile and/or target posting.`
       : "Lead with measurable achievements from the uploaded CV before adding role-specific language.",
     `Mirror the posting language for ${job.requiredSkills.join(", ")} only where it is truthful to the CV.`,
+    request.jobDescription
+      ? "Because a job posting was provided, prioritize the exact requirements and language from that vacancy before broader market keywords."
+      : "No specific job posting was provided, so this rewrite uses role-level market intelligence and the selected target profile.",
     "Do not add unsupported tools, industries, or responsibilities.",
   ].join(" ");
 }
