@@ -93,7 +93,7 @@ function extractJobDescriptionSkills(description = "") {
   return marketSkillTerms.filter((term) => lower.includes(term.toLowerCase()));
 }
 
-export function searchMockJobs(request: DemoReportRequest): RankedOpportunity[] {
+export function buildOpportunitySet(request: DemoReportRequest): RankedOpportunity[] {
   const targetRole = request.targetRole.trim() || "Cargo selecionado";
   const family = roleFamily(targetRole);
   const industryKey = request.desiredIndustry.toLowerCase();

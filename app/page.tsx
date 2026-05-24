@@ -335,6 +335,44 @@ function InsightsSection() {
   );
 }
 
+function PrivacySection() {
+  const privacyItems = [
+    "Seu CV e usado apenas para gerar analise e materiais de candidatura.",
+    "Nao vendemos seus dados.",
+    "Nao compartilhamos seu CV com empresas.",
+    "Voce pode excluir sua analise.",
+    "O sistema nao inventa experiencias profissionais.",
+  ];
+
+  return (
+    <section className="relative overflow-hidden border-b border-white/10 bg-slate-900/35 px-5 py-24 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <SectionIntro
+          eyebrow="Privacidade e confianca"
+          title="Seu CV continua seu."
+          copy="O AI Job Radar foi desenhado para apoiar estrategia de carreira, nao para expor seu perfil ou criar narrativas falsas."
+        />
+        <div className="mt-12 grid gap-4 md:grid-cols-5">
+          {privacyItems.map((item, index) => (
+            <motion.div
+              key={item}
+              variants={motionCard}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.45, delay: index * 0.04 }}
+              className="rounded-lg border border-white/10 bg-white/[0.035] p-5"
+            >
+              <BadgeCheck className="mb-4 size-5 text-emerald-200" />
+              <p className="text-sm leading-6 text-slate-300">{item}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const { openAuthPrompt } = useAuthPrompt();
 
@@ -396,10 +434,13 @@ export default function Home() {
           >
             <Badge variant="pulse">Inteligencia de carreira com IA</Badge>
             <h1 className="mt-7 text-balance text-5xl font-semibold leading-[0.98] text-white sm:text-6xl lg:text-7xl">
-              Encontre as oportunidades que realmente combinam com seu perfil.
+              Pare de se candidatar no escuro.
             </h1>
             <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-slate-300 sm:text-xl">
-              O AI Job Radar analisa vagas, detecta habilidades de mercado, calcula seu fit e ajuda a otimizar seu CV para as melhores oportunidades.
+              O AI Job Radar le seu CV, mostra como o mercado interpreta seu perfil e gera materiais adaptados para cada oportunidade.
+            </p>
+            <p className="mx-auto mt-4 max-w-3xl text-base leading-7 text-slate-400">
+              Entenda seus pontos fortes, descubra gaps, compare seu CV com vagas reais e gere rascunhos de CV, cartas e respostas de candidatura sem inventar experiencias.
             </p>
             <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
               <Button size="lg" onClick={openAuthPrompt}>
@@ -423,6 +464,7 @@ export default function Home() {
       <ProblemSection />
       <WorkflowSection />
       <FeaturesSection />
+      <PrivacySection />
       <InsightsSection />
     </main>
   );

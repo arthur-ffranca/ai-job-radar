@@ -42,6 +42,71 @@ export type CareerGap = {
   recommendation: string;
 };
 
+export type CvReader = {
+  profileIdentified: string;
+  perceivedSeniority: string;
+  professionalNarrative: string;
+  strongAreas: string[];
+  weaklyEvidencedAreas: string[];
+  toolsAndSkillsFound: string[];
+  compatibleRoles: string[];
+  interpretationRisk: string;
+  recruiterFirstImpression: string;
+  likelyInterviewQuestions: string[];
+  positioningSuggestions: string[];
+};
+
+export type JobFit = {
+  fitScore: number;
+  fitLevel: "Forte" | "Bom" | "Medio" | "Baixo";
+  recommendation: string;
+  summary: string;
+  strengths: string[];
+  gaps: string[];
+  missingKeywords: string[];
+  foundKeywords: string[];
+  risks: string[];
+  sectionScores: {
+    professionalSummary: number;
+    experience: number;
+    skills: number;
+    atsKeywords: number;
+    seniority: number;
+  };
+};
+
+export type CvChange = {
+  section: string;
+  before: string;
+  after: string;
+  reason: string;
+};
+
+export type CoverLetter = {
+  language: "pt-BR";
+  tone: "professional";
+  content: string;
+};
+
+export type RecommendationDraft = {
+  requestMessage: string;
+  formalLetterDraft: string;
+  linkedinRecommendationDraft: string;
+  disclaimer: string;
+};
+
+export type ApplicationAnswer = {
+  question: string;
+  answer: string;
+};
+
+export type LearningRecommendation = {
+  gap: string;
+  priority: "Alta" | "Media" | "Baixa";
+  whyItMatters: string;
+  suggestedStudyPath: string[];
+};
+
 export type ParsedExperience = {
   company: string;
   role: string;
@@ -163,9 +228,13 @@ export type ParseResumeResponse = {
 export type JobRadarReport = {
   id: string;
   analysisId: string;
+  sourceFileName: string;
+  createdAt: string;
   generatedAt: string;
   request: DemoReportRequest;
   parsedProfile: ParsedProfile;
+  cvReader: CvReader;
+  jobFit: JobFit;
   matchScore: number;
   fitSignal: string;
   relevanceWarning?: string;
@@ -183,6 +252,11 @@ export type JobRadarReport = {
   careerGaps: CareerGap[];
   optimizedResume: string;
   adaptedCvDraft: string;
+  cvChanges: CvChange[];
+  coverLetter: CoverLetter;
+  recommendationDraft: RecommendationDraft;
+  applicationAnswers: ApplicationAnswer[];
+  learningRecommendations: LearningRecommendation[];
   reportSummary: string;
   roleAnalyses: RoleTargetAnalysis[];
 };

@@ -9,11 +9,14 @@ import {
   BriefcaseBusiness,
   Building2,
   Check,
+  Clipboard,
   Code2,
+  BookOpen,
   Download,
   FileText,
   Gauge,
   MapPin,
+  MessageSquare,
   Radar,
   ShieldAlert,
   SignalHigh,
@@ -30,6 +33,17 @@ import type { DemoReportRequest, JobRadarReport, RoleTargetAnalysis } from "@/li
 
 function downloadHtmlFile(filename: string, contents: string) {
   const blob = new Blob([contents], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadTextFile(filename: string, contents: string) {
+  const blob = new Blob([contents], { type: "text/markdown;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
 
@@ -579,6 +593,7 @@ export function ReportView({
 
     return readStoredDemoReport(initialRequest?.analysisId);
   });
+  const [copiedAction, setCopiedAction] = useState<string>("");
 
   const requestedRole = initialRequest?.targetRole || "seu cargo-alvo";
   const roleAnalyses = report?.roleAnalyses?.length
@@ -597,6 +612,19 @@ export function ReportView({
         }]
       : [];
   const insightsExportHtml = report ? insightsHtml(report, roleAnalyses) : "";
+
+  async function copyText(label: string, value: string) {
+    await navigator.clipboard.writeText(value);
+    setCopiedAction(label);
+    window.setTimeout(() => setCopiedAction(""), 1800);
+  }
+
+  function deleteAnalysis() {
+    window.sessionStorage.removeItem("ai-job-radar:last-report");
+    window.sessionStorage.removeItem("ai-job-radar:active-analysis-id");
+    window.localStorage.removeItem("ai-job-radar:last-report");
+    router.push("/demo");
+  }
 
   const snapshot = [
     {
@@ -720,6 +748,17 @@ export function ReportView({
             <FileText />
             PDF do relatorio
           </Button>
+          <Button size="lg" variant="outline" onClick={() => router.push("/demo")}>
+            <Upload />
+            Enviar novo CV
+          </Button>
+          <Button size="lg" variant="outline" onClick={() => router.push("/demo")}>
+            <Radar />
+            Analisar outra vaga
+          </Button>
+          <Button size="lg" variant="outline" onClick={deleteAnalysis}>
+            Excluir analise
+          </Button>
         </div>
       </div>
 
@@ -733,6 +772,148 @@ export function ReportView({
         <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
           Estes insights usam o CV enviado, os cargos escolhidos e o relatorio gerado. Eles ficam separados da camada global de mercado acima.
         </p>
+      </div>
+
+      <div className="mb-6 grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+        <Card className="border-white/10 bg-slate-900/82 shadow-panel backdrop-blur">
+          <CardHeader className="p-5">
+            <div className="flex items-center gap-3">
+              <BookOpen className="size-5 text-sky-200" />
+              <CardTitle className="text-xl">1. O que entendemos do seu CV</CardTitle>
+            </div>
+            <p className="text-sm leading-6 text-slate-400">
+              Leitura do perfil sem inventar experiencias. Use isto para validar se a IA interpretou seu CV corretamente.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4 p-5 pt-0">
+            {[
+              ["Perfil principal identificado", report.cvReader.profileIdentified],
+              ["Senioridade percebida", report.cvReader.perceivedSeniority],
+              ["Narrativa profissional percebida", report.cvReader.professionalNarrative],
+              ["Risco de interpretacao", report.cvReader.interpretationRisk],
+              ["Como um recrutador leria esse CV", report.cvReader.recruiterFirstImpression],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                <p className="text-xs text-slate-500">{label}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-300">{value}</p>
+              </div>
+            ))}
+            <div className="grid gap-3 md:grid-cols-2">
+              {[
+                ["Areas fortes", report.cvReader.strongAreas],
+                ["Areas pouco evidentes", report.cvReader.weaklyEvidencedAreas],
+                ["Ferramentas e competencias encontradas", report.cvReader.toolsAndSkillsFound],
+                ["Cargos mais compativeis", report.cvReader.compatibleRoles],
+              ].map(([label, values]) => (
+                <div key={label as string} className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                  <p className="text-xs text-slate-500">{label as string}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {(values as string[]).length ? (values as string[]).map((value) => (
+                      <span key={value} className="rounded border border-white/10 bg-white/[0.04] px-2 py-1 text-xs text-slate-300">
+                        {value}
+                      </span>
+                    )) : <span className="text-sm text-slate-500">Nao detectado</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-lg border border-sky-300/20 bg-sky-300/10 p-4">
+                <p className="text-sm font-medium text-white">Perguntas provaveis em entrevista</p>
+                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
+                  {report.cvReader.likelyInterviewQuestions.map((question) => (
+                    <li key={question}>{question}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 p-4">
+                <p className="text-sm font-medium text-white">Sugestoes de posicionamento</p>
+                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
+                  {report.cvReader.positioningSuggestions.map((suggestion) => (
+                    <li key={suggestion}>{suggestion}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-emerald-300/20 bg-slate-900/82 shadow-panel backdrop-blur">
+          <CardHeader className="p-5">
+            <div className="flex items-center gap-3">
+              <Gauge className="size-5 text-emerald-200" />
+              <CardTitle className="text-xl">2. Score de aderencia com a vaga</CardTitle>
+            </div>
+            <p className="text-sm leading-6 text-slate-400">
+              Comparacao entre CV, cargo-alvo, requisitos, senioridade e palavras-chave.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-5 p-5 pt-0">
+            <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 p-5">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="text-sm text-emerald-100/80">Fit geral</p>
+                  <p className="mt-2 text-6xl font-semibold leading-none text-white">
+                    {report.jobFit.fitScore}
+                  </p>
+                </div>
+                <Badge variant="pulse">{report.jobFit.fitLevel}</Badge>
+              </div>
+              <p className="mt-4 text-sm font-medium text-white">{report.jobFit.recommendation}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-300">{report.jobFit.summary}</p>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              {[
+                ["Forcas", report.jobFit.strengths],
+                ["Gaps", report.jobFit.gaps],
+                ["Palavras encontradas", report.jobFit.foundKeywords],
+                ["Palavras ausentes", report.jobFit.missingKeywords],
+              ].map(([label, values]) => (
+                <div key={label as string} className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                  <p className="text-xs text-slate-500">{label as string}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {(values as string[]).length ? (values as string[]).map((value) => (
+                      <span key={value} className="rounded border border-white/10 bg-white/[0.04] px-2 py-1 text-xs text-slate-300">
+                        {value}
+                      </span>
+                    )) : <span className="text-sm text-slate-500">Nao detectado</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {Object.entries(report.jobFit.sectionScores).map(([label, value]) => (
+                <div key={label} className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="text-slate-300">{label}</span>
+                    <span className="text-slate-500">{value}%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-white/10">
+                    <motion.div
+                      initial={false}
+                      animate={{ width: `${value}%` }}
+                      transition={{ duration: 0.7 }}
+                      className="h-full rounded-full bg-[linear-gradient(90deg,rgba(56,189,248,0.9),rgba(52,211,153,0.9))]"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {report.jobFit.risks.length ? (
+              <div className="rounded-lg border border-sky-300/20 bg-sky-300/10 p-4">
+                <p className="text-sm font-medium text-white">Riscos</p>
+                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
+                  {report.jobFit.risks.map((risk) => (
+                    <li key={risk}>{risk}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
       </div>
 
       <Card className="mb-6 border-white/10 bg-slate-900/82 shadow-panel backdrop-blur">
@@ -875,6 +1056,25 @@ export function ReportView({
           </p>
         </CardHeader>
         <CardContent className="p-5 pt-0">
+          <div className="mb-4 flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => copyText("cv", report.adaptedCvDraft)}
+            >
+              <Clipboard />
+              {copiedAction === "cv" ? "CV copiado" : "Copiar CV adaptado"}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => downloadTextFile(`ai-job-radar-${slugify(report.request.targetRole)}-cv-adaptado.md`, report.adaptedCvDraft)}
+            >
+              <Download />
+              Baixar CV em Markdown
+            </Button>
+          </div>
           <div className="rounded-lg border border-white/10 bg-slate-950/55 p-5 text-sm leading-7 text-slate-300">
             <ReactMarkdown
               components={{
@@ -918,6 +1118,145 @@ export function ReportView({
               {report.adaptedCvDraft || "Nenhum rascunho adaptado foi gerado para esta analise."}
             </ReactMarkdown>
           </div>
+        </CardContent>
+      </Card>
+
+      <div className="mb-6 grid gap-6 xl:grid-cols-2">
+        <Card className="border-white/10 bg-slate-900/82 shadow-panel backdrop-blur">
+          <CardHeader className="p-5">
+            <CardTitle className="text-xl">5. Antes/Depois</CardTitle>
+            <p className="text-sm leading-6 text-slate-400">
+              Comparacao das mudancas sugeridas e o motivo de cada ajuste.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4 p-5 pt-0">
+            {report.cvChanges.map((change) => (
+              <div key={change.section} className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                <p className="text-sm font-medium text-white">{change.section}</p>
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  <div className="rounded-md border border-white/10 bg-slate-950/45 p-3">
+                    <p className="text-xs text-slate-500">Antes</p>
+                    <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-300">{change.before}</p>
+                  </div>
+                  <div className="rounded-md border border-emerald-300/20 bg-emerald-300/10 p-3">
+                    <p className="text-xs text-emerald-100/75">Depois</p>
+                    <div className="mt-2 text-sm leading-6 text-slate-100">
+                      <ReactMarkdown>{change.after}</ReactMarkdown>
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-slate-400">
+                  <span className="text-slate-200">Por que mudou:</span> {change.reason}
+                </p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="border-white/10 bg-slate-900/82 shadow-panel backdrop-blur">
+          <CardHeader className="p-5">
+            <div className="flex items-center gap-3">
+              <MessageSquare className="size-5 text-sky-200" />
+              <CardTitle className="text-xl">6. Carta de apresentacao</CardTitle>
+            </div>
+            <p className="text-sm leading-6 text-slate-400">
+              Rascunho objetivo, baseado apenas no CV e no cargo-alvo.
+            </p>
+          </CardHeader>
+          <CardContent className="p-5 pt-0">
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => copyText("cover", report.coverLetter.content)}
+              className="mb-4"
+            >
+              <Clipboard />
+              {copiedAction === "cover" ? "Carta copiada" : "Copiar carta de apresentacao"}
+            </Button>
+            <div className="rounded-lg border border-white/10 bg-slate-950/55 p-5 text-sm leading-7 text-slate-300">
+              <ReactMarkdown>{report.coverLetter.content}</ReactMarkdown>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="mb-6 grid gap-6 xl:grid-cols-2">
+        <Card className="border-white/10 bg-slate-900/82 shadow-panel backdrop-blur">
+          <CardHeader className="p-5">
+            <CardTitle className="text-xl">7. Rascunho de recomendacao</CardTitle>
+            <p className="text-sm leading-6 text-slate-400">
+              Texto para ex-gestor, professor ou colega revisar. O sistema nunca assina ou finge autoria de terceiros.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4 p-5 pt-0">
+            <div className="rounded-md border border-sky-300/20 bg-sky-300/10 p-3 text-sm leading-6 text-sky-50">
+              {report.recommendationDraft.disclaimer}
+            </div>
+            {[
+              ["Mensagem para pedir recomendacao", report.recommendationDraft.requestMessage, "request"],
+              ["Carta formal - rascunho", report.recommendationDraft.formalLetterDraft, "formal"],
+              ["Recomendacao curta para LinkedIn", report.recommendationDraft.linkedinRecommendationDraft, "linkedin"],
+            ].map(([title, content, action]) => (
+              <div key={title} className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm font-medium text-white">{title}</p>
+                  <Button type="button" size="sm" variant="outline" onClick={() => copyText(action, content)}>
+                    <Clipboard />
+                    {copiedAction === action ? "Copiado" : action === "linkedin" ? "Copiar recomendacao LinkedIn" : action === "request" ? "Copiar pedido" : "Copiar"}
+                  </Button>
+                </div>
+                <div className="mt-3 text-sm leading-7 text-slate-300">
+                  <ReactMarkdown>{content}</ReactMarkdown>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="border-white/10 bg-slate-900/82 shadow-panel backdrop-blur">
+          <CardHeader className="p-5">
+            <CardTitle className="text-xl">8. Respostas de candidatura</CardTitle>
+            <p className="text-sm leading-6 text-slate-400">
+              Sugestoes para formular respostas com base no CV, sem exagerar senioridade ou inventar ferramentas.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3 p-5 pt-0">
+            {report.applicationAnswers.map((item) => (
+              <div key={item.question} className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                <p className="text-sm font-medium text-white">{item.question}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-300">{item.answer}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="mb-6 border-white/10 bg-slate-900/82 shadow-panel backdrop-blur">
+        <CardHeader className="p-5">
+          <CardTitle className="text-xl">9. Recomendacoes de estudo por gaps</CardTitle>
+          <p className="text-sm leading-6 text-slate-400">
+            Trilhas curtas para gaps detectados. Inclua algo no CV apenas depois de ter evidencia real.
+          </p>
+        </CardHeader>
+        <CardContent className="grid gap-3 p-5 pt-0 md:grid-cols-2 xl:grid-cols-3">
+          {report.learningRecommendations.length ? report.learningRecommendations.map((item) => (
+            <div key={item.gap} className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-medium text-white">{item.gap}</p>
+                <Badge variant={item.priority === "Alta" ? "pulse" : "outline"}>{item.priority}</Badge>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-slate-400">{item.whyItMatters}</p>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
+                {item.suggestedStudyPath.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ul>
+            </div>
+          )) : (
+            <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4 text-sm text-slate-400">
+              Nenhum gap prioritario foi detectado para esta analise.
+            </div>
+          )}
         </CardContent>
       </Card>
 

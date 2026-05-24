@@ -107,6 +107,7 @@ export function DemoForm() {
   const { isAuthLoaded, requireAuth } = useAuthPrompt();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const activeAnalysisIdRef = useRef<string | null>(null);
+  const activeParseIdRef = useRef<string | null>(null);
   const [formData, setFormData] = useState<UploadFormData>(initialFormData);
   const [isParsing, setIsParsing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -274,6 +275,7 @@ export function DemoForm() {
   async function handleFileChange(file: File | undefined) {
     console.log("[AI Job Radar] selected file", file);
     activeAnalysisIdRef.current = null;
+    activeParseIdRef.current = null;
     clearStoredDemoReport();
     setIsLoading(false);
 
@@ -287,6 +289,7 @@ export function DemoForm() {
     }
 
     if (!/\.(pdf|docx)$/i.test(file.name)) {
+      activeParseIdRef.current = null;
       setFormData((prev) => ({
         ...prev,
         cvFile: null,
@@ -302,6 +305,9 @@ export function DemoForm() {
       }
       return;
     }
+
+    const parseId = crypto.randomUUID();
+    activeParseIdRef.current = parseId;
 
     setFormData((prev) => ({
       ...prev,
@@ -320,6 +326,14 @@ export function DemoForm() {
       const { response, parsedProfile } = await parseResumeFile(file);
 
       console.log("[AI Job Radar] parsing completed", parsedProfile);
+
+      if (activeParseIdRef.current !== parseId) {
+        console.warn("[AI Job Radar] stale CV parsing ignored", {
+          activeParseId: activeParseIdRef.current,
+          completedParseId: parseId,
+        });
+        return;
+      }
 
       setFormData((prev) => {
         console.log("[AI Job Radar] form state before merge", prev);
@@ -356,6 +370,9 @@ export function DemoForm() {
         parserDebug,
         error,
       });
+      if (activeParseIdRef.current !== parseId) {
+        return;
+      }
       setFormData((prev) => ({
         ...prev,
         cvFile: file,
@@ -373,13 +390,16 @@ export function DemoForm() {
         uploadMessage: message,
       }));
     } finally {
-      setIsParsing(false);
+      if (activeParseIdRef.current === parseId) {
+        setIsParsing(false);
+      }
     }
   }
 
   function handleRemoveFile() {
     console.log("[AI Job Radar] file removed");
     activeAnalysisIdRef.current = null;
+    activeParseIdRef.current = null;
     clearStoredDemoReport();
     if (fileInputRef.current) {
       fileInputRef.current.value = "";

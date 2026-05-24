@@ -6,15 +6,23 @@ import { FileSearch, Radar, SearchCheck, Sparkles } from "lucide-react";
 const analysisSteps = [
   {
     icon: FileSearch,
-    label: "Lendo sinais do curriculo",
+    label: "Lendo seu CV...",
   },
   {
     icon: SearchCheck,
-    label: "Comparando demanda do mercado",
+    label: "Identificando sua narrativa profissional...",
   },
   {
     icon: Sparkles,
-    label: "Preparando estrategia de carreira",
+    label: "Comparando com a vaga...",
+  },
+  {
+    icon: FileSearch,
+    label: "Gerando rascunho de CV adaptado...",
+  },
+  {
+    icon: Sparkles,
+    label: "Preparando cartas e recomendacoes...",
   },
 ];
 
@@ -54,7 +62,7 @@ export function AnalysisLoadingOverlay() {
             Gerando relatorio AI Job Radar
           </p>
           <h2 className="mx-auto mt-3 max-w-xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
-            Analisando perfil, habilidades e fit com o mercado.
+            Gerando uma nova analise para este arquivo.
           </h2>
 
           <div className="mx-auto mt-8 h-2 max-w-md overflow-hidden rounded-full bg-white/10">
@@ -66,7 +74,7 @@ export function AnalysisLoadingOverlay() {
             />
           </div>
 
-          <div className="mt-7 grid gap-3 sm:grid-cols-3">
+          <div className="mt-7 grid gap-3 sm:grid-cols-5">
             {analysisSteps.map(({ icon: Icon, label }, index) => (
               <motion.div
                 key={label}
