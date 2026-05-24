@@ -2,7 +2,7 @@ import type { DemoReportRequest, JobRadarReport, RoleTargetAnalysis } from "@/li
 import { scoreJob, fitSignalFromScore } from "@/lib/job-scorer";
 import { searchMockJobs } from "@/lib/job-search";
 import { parseProfileFromResume } from "@/lib/profile-parser";
-import { buildCareerGaps, optimizeResumeDraft } from "@/lib/resume-optimizer";
+import { buildAdaptedCvDraft, buildCareerGaps, optimizeResumeDraft } from "@/lib/resume-optimizer";
 
 const fallbackRequest: DemoReportRequest = {
   resumeName: "Nenhum CV enviado",
@@ -43,9 +43,11 @@ export function generateReport(request: Partial<DemoReportRequest> = {}): JobRad
   const primaryAnalysis = roleAnalyses[0];
   const bestJob = primaryAnalysis?.rankedOpportunities[0];
   const matchScore = primaryAnalysis?.matchScore || 0;
+  const reportId = normalizedRequest.analysisId || `analysis-${Date.now()}`;
 
   return {
-    id: `demo-${Date.now()}`,
+    id: reportId,
+    analysisId: reportId,
     generatedAt: new Date().toISOString(),
     request: normalizedRequest,
     parsedProfile: profile,
@@ -70,6 +72,7 @@ export function generateReport(request: Partial<DemoReportRequest> = {}): JobRad
     keySkills: primaryAnalysis?.keySkills || [],
     careerGaps: primaryAnalysis?.careerGaps || [],
     optimizedResume: primaryAnalysis?.optimizedResume || "Envie um CV e selecione um cargo-alvo para gerar orientacoes de curriculo especificas.",
+    adaptedCvDraft: primaryAnalysis?.adaptedCvDraft || "",
     reportSummary: primaryAnalysis?.reportSummary || "Envie um CV e selecione um cargo-alvo para gerar orientacoes de curriculo especificas.",
     roleAnalyses,
   };
@@ -101,6 +104,7 @@ function buildRoleAnalysis(
     optimizedResume: bestJob
       ? optimizeResumeDraft(profile, bestJob, request)
       : "Envie um CV e selecione um cargo-alvo para gerar orientacoes de curriculo especificas.",
+    adaptedCvDraft: buildAdaptedCvDraft(profile, bestJob, request),
     reportSummary:
       matchScore < 45
         ? `O AI Job Radar encontrou alinhamento limitado entre o CV disponivel e ${request.targetRole}. O relatorio foca em gaps e proximos passos.`

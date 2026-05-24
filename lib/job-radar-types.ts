@@ -3,6 +3,7 @@ export type Seniority = "Any" | "Junior" | "Mid-level" | "Senior" | "Lead";
 export type WorkModel = "any" | "remote" | "hybrid" | "onsite";
 
 export type DemoReportRequest = {
+  analysisId?: string;
   resumeName: string;
   resumeText?: string;
   parsedProfile?: ParsedProfile | null;
@@ -161,6 +162,7 @@ export type ParseResumeResponse = {
 
 export type JobRadarReport = {
   id: string;
+  analysisId: string;
   generatedAt: string;
   request: DemoReportRequest;
   parsedProfile: ParsedProfile;
@@ -180,6 +182,7 @@ export type JobRadarReport = {
   keySkills: SkillSignal[];
   careerGaps: CareerGap[];
   optimizedResume: string;
+  adaptedCvDraft: string;
   reportSummary: string;
   roleAnalyses: RoleTargetAnalysis[];
 };
@@ -190,6 +193,7 @@ export type RoleTargetAnalysis = {
   fitSignal: string;
   reportSummary: string;
   optimizedResume: string;
+  adaptedCvDraft: string;
   rankedOpportunities: RankedOpportunity[];
   careerGaps: CareerGap[];
   keySkills: SkillSignal[];

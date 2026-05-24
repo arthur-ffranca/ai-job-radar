@@ -6,14 +6,14 @@ import { MessageSquare, Send, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-type BetaFeedback = {
+type ReportFeedback = {
   rating: number;
   comment: string;
   useCase: string;
   createdAt: string;
 };
 
-export function BetaFeedbackCard() {
+export function ReportFeedbackCard() {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [useCase, setUseCase] = useState("");
@@ -22,16 +22,16 @@ export function BetaFeedbackCard() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const payload: BetaFeedback = {
+    const payload: ReportFeedback = {
       rating,
       comment: comment.trim(),
       useCase: useCase.trim(),
       createdAt: new Date().toISOString(),
     };
 
-    console.log("[AI Job Radar] feedback beta", payload);
+    console.log("[AI Job Radar] feedback do relatorio", payload);
 
-    const stored = JSON.parse(localStorage.getItem("ai-job-radar-feedback") || "[]") as BetaFeedback[];
+    const stored = JSON.parse(localStorage.getItem("ai-job-radar-feedback") || "[]") as ReportFeedback[];
     localStorage.setItem("ai-job-radar-feedback", JSON.stringify([payload, ...stored].slice(0, 20)));
     setSubmitted(true);
   }
@@ -44,9 +44,9 @@ export function BetaFeedbackCard() {
             <MessageSquare className="size-5" />
           </div>
           <div>
-            <CardTitle className="text-xl">Avalie esta experiência</CardTitle>
+            <CardTitle className="text-xl">Avalie esta experiencia</CardTitle>
             <p className="mt-1 text-sm leading-6 text-slate-400">
-              Seu feedback ajuda a priorizar o que entra no beta público.
+              Seu feedback ajuda a melhorar a experiencia e priorizar os proximos ajustes do produto.
             </p>
           </div>
         </div>
@@ -56,13 +56,13 @@ export function BetaFeedbackCard() {
           <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 p-4">
             <p className="text-sm font-medium text-emerald-100">Feedback registrado.</p>
             <p className="mt-2 text-sm leading-6 text-slate-300">
-              Por enquanto ele fica salvo localmente. A estrutura já está pronta para enviar para a API quando conectarmos o banco.
+              Por enquanto ele fica salvo localmente. A estrutura ja esta pronta para enviar para a API quando conectarmos o banco.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <p className="mb-2 text-sm text-slate-300">Nota do relatório</p>
+              <p className="mb-2 text-sm text-slate-300">Nota do relatorio</p>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map((value) => (
                   <button
@@ -82,12 +82,12 @@ export function BetaFeedbackCard() {
 
             <label className="block">
               <span className="mb-2 block text-sm text-slate-300">
-                O que ficou mais útil para você?
+                O que ficou mais util para voce?
               </span>
               <textarea
                 value={comment}
                 onChange={(event) => setComment(event.target.value)}
-                placeholder="Ex.: gostei da comparação por cargo, mas queria sugestões mais diretas para o resumo profissional."
+                placeholder="Ex.: gostei da comparacao por cargo, mas queria sugestoes mais diretas para o resumo profissional."
                 className="min-h-28 w-full resize-y rounded-md border border-white/10 bg-slate-900/65 px-3 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-ring"
               />
             </label>
@@ -99,7 +99,7 @@ export function BetaFeedbackCard() {
               <input
                 value={useCase}
                 onChange={(event) => setUseCase(event.target.value)}
-                placeholder="Ex.: transição de carreira, recolocação, promoção, vaga internacional"
+                placeholder="Ex.: transicao de carreira, recolocacao, promocao, vaga internacional"
                 className="h-11 w-full rounded-md border border-white/10 bg-slate-900/65 px-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-ring"
               />
             </label>

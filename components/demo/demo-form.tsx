@@ -21,7 +21,7 @@ import { useAuthPrompt } from "@/components/auth/auth-prompt-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { generateDemoReport } from "@/lib/job-radar-client";
+import { analyzeDemoReport, clearStoredDemoReport } from "@/lib/job-radar-client";
 import type { ParsedProfile, Seniority, WorkModel } from "@/lib/job-radar-types";
 import { ParseResumeDebugError, parseResumeFile } from "@/lib/resume-parser-client";
 import { cn } from "@/lib/utils";
@@ -106,6 +106,7 @@ export function DemoForm() {
   const router = useRouter();
   const { isAuthLoaded, requireAuth } = useAuthPrompt();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const activeAnalysisIdRef = useRef<string | null>(null);
   const [formData, setFormData] = useState<UploadFormData>(initialFormData);
   const [isParsing, setIsParsing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -184,12 +185,17 @@ export function DemoForm() {
       return;
     }
 
+    const analysisId = crypto.randomUUID();
+    activeAnalysisIdRef.current = analysisId;
+    clearStoredDemoReport();
     setIsLoading(true);
 
     const payload = {
+      analysisId,
       resumeName: formData.cvFileName || "Nenhum CV enviado",
       resumeText: formData.rawCvText,
       parsedProfile: formData.parsedProfile,
+      cvFile: formData.cvFile,
       targetRole: selectedTargetRoles[0],
       targetRoles: selectedTargetRoles,
       jobDescription: formData.jobDescription.trim(),
@@ -203,11 +209,30 @@ export function DemoForm() {
 
     console.log("[AI Job Radar] submit payload", payload);
 
-    await generateDemoReport({
-      ...payload,
-    });
+    try {
+      const report = await analyzeDemoReport(payload, analysisId);
 
-    router.push("/report");
+      if (activeAnalysisIdRef.current !== analysisId || report.analysisId !== analysisId) {
+        console.warn("[AI Job Radar] stale analysis ignored", {
+          activeAnalysisId: activeAnalysisIdRef.current,
+          returnedAnalysisId: report.analysisId,
+        });
+        return;
+      }
+
+      router.push(`/report?analysisId=${encodeURIComponent(analysisId)}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erro ao gerar a analise.";
+      setFormData((prev) => ({
+        ...prev,
+        uploadStatus: "error",
+        uploadMessage: message,
+      }));
+    } finally {
+      if (activeAnalysisIdRef.current === analysisId) {
+        setIsLoading(false);
+      }
+    }
   }, [formData, isAuthLoaded, isLoading, isParsing, requireAuth, router]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -248,6 +273,9 @@ export function DemoForm() {
 
   async function handleFileChange(file: File | undefined) {
     console.log("[AI Job Radar] selected file", file);
+    activeAnalysisIdRef.current = null;
+    clearStoredDemoReport();
+    setIsLoading(false);
 
     if (!file) {
       setFormData((prev) => ({
@@ -351,6 +379,8 @@ export function DemoForm() {
 
   function handleRemoveFile() {
     console.log("[AI Job Radar] file removed");
+    activeAnalysisIdRef.current = null;
+    clearStoredDemoReport();
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }

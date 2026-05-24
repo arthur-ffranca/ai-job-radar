@@ -96,7 +96,7 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
 
               <p className="mt-5 inline-flex items-center gap-2 rounded-md border border-sky-300/20 bg-sky-300/10 px-2.5 py-1 text-xs font-medium text-sky-100">
                 <Sparkles className="size-3.5" />
-                Acesso ao beta privado
+                Relatorio privado de carreira
               </p>
 
               <h2

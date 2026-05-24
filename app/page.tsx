@@ -1,6 +1,5 @@
 "use client";
 
-import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -33,7 +32,6 @@ import { useAuthPrompt } from "@/components/auth/auth-prompt-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 
 type IconItem = {
   icon: LucideIcon;
@@ -337,66 +335,6 @@ function InsightsSection() {
   );
 }
 
-function BetaCTA() {
-  const [submitted, setSubmitted] = useState(false);
-  const [email, setEmail] = useState("");
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("ai-job-radar-beta-email", email);
-    }
-    setSubmitted(true);
-  }
-
-  return (
-    <section
-      id="beta"
-      className="relative overflow-hidden px-5 py-24 sm:px-6 lg:px-8"
-    >
-      <div className="absolute inset-0 fine-grid opacity-35" aria-hidden="true" />
-      <div className="relative mx-auto max-w-5xl rounded-lg border border-white/10 bg-slate-900/90 p-8 text-center shadow-panel sm:p-12">
-        <Badge variant="outline" className="border-emerald-300/20 text-emerald-100">
-          Beta privado
-        </Badge>
-        <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-5xl">
-          Esteja entre os primeiros a usar o AI Job Radar.
-        </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">
-          Entre no acesso antecipado e ajude a moldar o fluxo de inteligencia de carreira antes do lancamento publico.
-        </p>
-
-        <form
-          onSubmit={handleSubmit}
-          className="mx-auto mt-9 grid max-w-xl gap-3 rounded-lg border border-white/10 bg-white/[0.035] p-3 sm:grid-cols-[1fr_auto]"
-        >
-          <Input
-            required
-            type="email"
-            placeholder="you@email.com"
-            aria-label="Endereco de e-mail"
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              setSubmitted(false);
-            }}
-            className="h-11 border-white/10 bg-slate-900/70"
-          />
-          <Button type="submit" className="h-11">
-            {submitted ? "Registrado" : "Entrar no beta"}
-            {submitted ? <Check /> : <ArrowRight />}
-          </Button>
-        </form>
-        <p className="mx-auto mt-3 max-w-xl text-xs leading-5 text-slate-500">
-          {submitted
-            ? "Interesse no beta salvo neste navegador. A criacao de conta ja esta disponivel pelo Clerk enquanto conectamos a lista de espera ao backend."
-            : "As contas de acesso antecipado passam pelo Clerk; este campo e um placeholder temporario da lista de espera."}
-        </p>
-      </div>
-    </section>
-  );
-}
-
 export default function Home() {
   const { openAuthPrompt } = useAuthPrompt();
 
@@ -423,8 +361,8 @@ export default function Home() {
             <a className="transition hover:text-white" href="#insights">
               Inteligencia
             </a>
-            <a className="transition hover:text-white" href="#beta">
-              Entrar no beta
+            <a className="transition hover:text-white" href="/demo">
+              Analisar perfil
             </a>
           </div>
           <div className="flex items-center gap-2">
@@ -432,8 +370,8 @@ export default function Home() {
               <Link href="/sign-in">Entrar</Link>
             </Button>
             <Button asChild size="sm" variant="accent">
-              <Link href="/sign-up">
-                Entrar no beta
+              <Link href="/demo">
+                Analisar perfil
                 <ChevronRight />
               </Link>
             </Button>
@@ -486,7 +424,6 @@ export default function Home() {
       <WorkflowSection />
       <FeaturesSection />
       <InsightsSection />
-      <BetaCTA />
     </main>
   );
 }

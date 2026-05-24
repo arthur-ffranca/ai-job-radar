@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 import {
   BadgeDollarSign,
   BriefcaseBusiness,
@@ -22,7 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BetaFeedbackCard } from "@/components/feedback/beta-feedback-card";
+import { ReportFeedbackCard } from "@/components/feedback/report-feedback-card";
 import { GlobalMarketIntelligence } from "@/components/report/global-market-intelligence";
 import { readStoredDemoReport } from "@/lib/job-radar-client";
 import type { DemoReportRequest, JobRadarReport, RoleTargetAnalysis } from "@/lib/job-radar-types";
@@ -576,7 +577,7 @@ export function ReportView({
       return null;
     }
 
-    return readStoredDemoReport();
+    return readStoredDemoReport(initialRequest?.analysisId);
   });
 
   const requestedRole = initialRequest?.targetRole || "seu cargo-alvo";
@@ -592,6 +593,7 @@ export function ReportView({
           rankedOpportunities: report.rankedOpportunities,
           careerGaps: report.careerGaps,
           keySkills: report.keySkills,
+          adaptedCvDraft: report.adaptedCvDraft,
         }]
       : [];
   const insightsExportHtml = report ? insightsHtml(report, roleAnalyses) : "";
@@ -682,6 +684,12 @@ export function ReportView({
           <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">
             Uma visao estrategica do seu fit, melhores oportunidades, provas ausentes e revisoes de CV por cargo. Cada cargo-alvo recebe uma direcao propria de curriculo e relatorio para download.
           </p>
+          <div className="mt-5 inline-flex max-w-full items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-slate-300">
+            <FileText className="size-4 shrink-0 text-emerald-200" />
+            <span className="truncate">
+              Arquivo analisado: <span className="font-medium text-white">{report.request.resumeName}</span>
+            </span>
+          </div>
         </motion.div>
 
         <div className="grid gap-3 sm:grid-cols-3">
@@ -853,6 +861,63 @@ export function ReportView({
               </div>
             );
           })}
+        </CardContent>
+      </Card>
+
+      <Card className="mb-6 border-emerald-300/20 bg-slate-900/82 shadow-panel backdrop-blur">
+        <CardHeader className="p-5">
+          <div className="flex items-center gap-3">
+            <FileText className="size-5 text-emerald-200" />
+            <CardTitle className="text-xl">CV adaptado — rascunho sugerido</CardTitle>
+          </div>
+          <p className="text-sm leading-6 text-slate-400">
+            Rascunho em Markdown gerado a partir do CV enviado. O texto reorganiza e melhora a redacao sem inventar empresas, cargos, datas, certificacoes, resultados ou ferramentas.
+          </p>
+        </CardHeader>
+        <CardContent className="p-5 pt-0">
+          <div className="rounded-lg border border-white/10 bg-slate-950/55 p-5 text-sm leading-7 text-slate-300">
+            <ReactMarkdown
+              components={{
+                h1: ({ children }) => (
+                  <h2 className="mb-4 text-2xl font-semibold leading-tight text-white">
+                    {children}
+                  </h2>
+                ),
+                h2: ({ children }) => (
+                  <h3 className="mb-3 mt-6 text-lg font-semibold text-white">
+                    {children}
+                  </h3>
+                ),
+                h3: ({ children }) => (
+                  <h4 className="mb-2 mt-5 text-base font-semibold text-slate-100">
+                    {children}
+                  </h4>
+                ),
+                p: ({ children }) => (
+                  <p className="mb-3 text-sm leading-7 text-slate-300">
+                    {children}
+                  </p>
+                ),
+                ul: ({ children }) => (
+                  <ul className="mb-4 list-disc space-y-2 pl-5 text-slate-300">
+                    {children}
+                  </ul>
+                ),
+                li: ({ children }) => <li className="text-sm leading-6">{children}</li>,
+                strong: ({ children }) => (
+                  <strong className="font-semibold text-emerald-100">{children}</strong>
+                ),
+                em: ({ children }) => <em className="text-sky-100">{children}</em>,
+                blockquote: ({ children }) => (
+                  <blockquote className="mt-5 rounded-md border border-sky-300/20 bg-sky-300/10 p-4 text-sky-50">
+                    {children}
+                  </blockquote>
+                ),
+              }}
+            >
+              {report.adaptedCvDraft || "Nenhum rascunho adaptado foi gerado para esta analise."}
+            </ReactMarkdown>
+          </div>
         </CardContent>
       </Card>
 
@@ -1145,7 +1210,7 @@ export function ReportView({
       </div>
 
       <div className="mt-6">
-        <BetaFeedbackCard />
+        <ReportFeedbackCard />
       </div>
     </div>
   );

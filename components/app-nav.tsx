@@ -34,8 +34,8 @@ export function AppNav() {
             <Link href="/sign-in">Entrar</Link>
           </Button>
           <Button asChild size="sm" variant="accent">
-            <Link href="/sign-up">
-              Entrar no beta
+            <Link href="/demo">
+              Analisar perfil
               <ChevronRight />
             </Link>
           </Button>

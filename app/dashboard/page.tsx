@@ -29,7 +29,7 @@ export default function DashboardPage() {
                 Seu workspace AI Job Radar.
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">
-                Inicie uma analise de perfil, gere relatorios e acompanhe inteligencia de carreira durante o beta.
+                Inicie uma analise de perfil, gere relatorios e acompanhe inteligencia de carreira em um workspace privado.
               </p>
             </div>
             <UserButton />
