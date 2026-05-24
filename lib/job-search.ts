@@ -82,7 +82,7 @@ function extractJobDescriptionSkills(description = "") {
 }
 
 export function searchMockJobs(request: DemoReportRequest): RankedOpportunity[] {
-  const targetRole = request.targetRole.trim() || "Selected Role";
+  const targetRole = request.targetRole.trim() || "Cargo selecionado";
   const family = roleFamily(targetRole);
   const industryKey = request.desiredIndustry.toLowerCase();
   const companies = industryCompanies[industryKey] || industryCompanies[family] || [
@@ -93,7 +93,7 @@ export function searchMockJobs(request: DemoReportRequest): RankedOpportunity[] 
   const baseSkills = roleSkillMap[family] || ["Stakeholder Management", "Project Management", "Communication", "Execution"];
   const postingSkills = extractJobDescriptionSkills(request.jobDescription);
   const requiredSkills = Array.from(new Set([...request.mustHaveKeywords, ...postingSkills, ...baseSkills])).slice(0, 6);
-  const location = request.location.trim() || "Any location";
+  const location = request.location.trim() || "Qualquer localidade";
   const workModel =
     request.workModel === "any"
       ? "Flexible"
@@ -101,15 +101,15 @@ export function searchMockJobs(request: DemoReportRequest): RankedOpportunity[] 
 
   return companies.slice(0, 3).map((company, index) => ({
     company,
-    role: index === 0 ? targetRole : `${titleCase(family)} ${index === 1 ? "Specialist" : "Manager"}`,
+    role: index === 0 ? targetRole : `${titleCase(family)} ${index === 1 ? "Especialista" : "Gerente"}`,
     location,
     workModel,
-    estimatedSalary: index === 0 ? "Salary available after screening" : "Not disclosed",
+    estimatedSalary: index === 0 ? "Salario disponivel apos triagem" : "Nao divulgado",
     matchScore: 0,
     requiredSkills,
     profileGaps: [],
     description: request.jobDescription
-      ? `${company} posting intelligence for ${targetRole}: ${request.jobDescription.slice(0, 520)}`
-      : `${company} is hiring for ${targetRole} with emphasis on ${requiredSkills.join(", ")}. The role expects ${request.seniority === "Any" ? "role-appropriate" : request.seniority.toLowerCase()} ownership and ${workModel.toLowerCase()} collaboration.`,
+      ? `Inteligencia da vaga ${company} para ${targetRole}: ${request.jobDescription.slice(0, 520)}`
+      : `${company} esta contratando para ${targetRole} com enfase em ${requiredSkills.join(", ")}. A vaga espera autonomia compativel com ${request.seniority === "Any" ? "o cargo" : request.seniority.toLowerCase()} e colaboracao em modelo ${workModel.toLowerCase()}.`,
   }));
 }

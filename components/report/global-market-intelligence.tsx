@@ -33,9 +33,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const workModelData = [
-  { name: "Remote", value: 34, color: "#38bdf8" },
-  { name: "Hybrid", value: 49, color: "#34d399" },
-  { name: "Onsite", value: 17, color: "#94a3b8" },
+  { name: "Remoto", value: 34, color: "#38bdf8" },
+  { name: "Hibrido", value: 49, color: "#34d399" },
+  { name: "Presencial", value: 17, color: "#94a3b8" },
 ];
 
 const requestedSkills = [
@@ -43,12 +43,12 @@ const requestedSkills = [
   { skill: "Python", share: 71 },
   { skill: "Excel", share: 64 },
   { skill: "Power BI", share: 42 },
-  { skill: "Stakeholder Mgmt", share: 39 },
+  { skill: "Gestao de stakeholders", share: 39 },
   { skill: "Forecasting", share: 35 },
 ];
 
 const fastestGrowingSkills = [
-  { skill: "AI workflows", growth: 46 },
+  { skill: "Fluxos com IA", growth: 46 },
   { skill: "Anaplan", growth: 31 },
   { skill: "dbt", growth: 28 },
   { skill: "RevOps", growth: 24 },
@@ -64,11 +64,11 @@ const salarySkills = [
 ];
 
 const industries = [
-  { name: "Financial Services", openings: 1280 },
-  { name: "Technology", openings: 1140 },
-  { name: "Retail", openings: 870 },
-  { name: "Logistics", openings: 620 },
-  { name: "Healthcare", openings: 540 },
+  { name: "Servicos financeiros", openings: 1280 },
+  { name: "Tecnologia", openings: 1140 },
+  { name: "Varejo", openings: 870 },
+  { name: "Logistica", openings: 620 },
+  { name: "Saude", openings: 540 },
 ];
 
 const companies = [
@@ -108,26 +108,26 @@ const topCities = [
 const insightCards = [
   {
     icon: Radar,
-    label: "Skill demand",
-    value: "SQL appears in 83% of analyzed roles",
+    label: "Demanda por competencias",
+    value: "SQL aparece em 83% das vagas analisadas",
     tone: "text-sky-200",
   },
   {
     icon: Waypoints,
-    label: "Work model shift",
-    value: "Remote finance roles decreased 12% this quarter",
+    label: "Mudanca no modelo",
+    value: "Vagas remotas em financeiro cairam 12% no trimestre",
     tone: "text-slate-200",
   },
   {
     icon: Banknote,
-    label: "Salary correlation",
-    value: "Spark-related jobs show the highest salary average",
+    label: "Correlacao salarial",
+    value: "Vagas com Spark mostram a maior media salarial",
     tone: "text-emerald-200",
   },
   {
     icon: MapPin,
-    label: "City trend",
-    value: "Hybrid work continues growing in São Paulo",
+    label: "Tendencia por cidade",
+    value: "Trabalho hibrido segue crescendo em Sao Paulo",
     tone: "text-sky-200",
   },
 ];
@@ -146,7 +146,7 @@ function ChartTooltip({
   }
 
   return (
-    <div className="rounded-md border border-white/10 bg-slate-950/95 px-3 py-2 shadow-panel">
+    <div className="rounded-md border border-white/10 bg-slate-900/95 px-3 py-2 shadow-panel">
       {label ? <p className="mb-1 text-xs text-slate-500">{label}</p> : null}
       {payload.map((item) => (
         <p key={`${item.name}-${item.dataKey}`} className="text-sm text-slate-200">
@@ -169,7 +169,7 @@ function AnalyticsCard({
 }) {
   return (
     <Card
-      className={`border-white/10 bg-slate-950/80 shadow-none transition duration-300 hover:-translate-y-0.5 hover:border-sky-300/25 hover:bg-slate-950/95 ${className}`}
+      className={`border-white/10 bg-slate-900/80 shadow-none transition duration-300 hover:-translate-y-0.5 hover:border-sky-300/25 hover:bg-slate-900/95 ${className}`}
     >
       <CardHeader className="p-5">
         <CardTitle className="text-base text-white">{title}</CardTitle>
@@ -191,19 +191,19 @@ export function GlobalMarketIntelligence() {
       >
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <Badge variant="pulse">Global Market Intelligence</Badge>
+            <Badge variant="pulse">Inteligencia global de mercado</Badge>
             <h2 className="mt-5 text-2xl font-semibold leading-tight text-white sm:text-3xl">
-              Labor market signals across analyzed job postings.
+              Sinais do mercado de trabalho em vagas analisadas.
             </h2>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
-              Aggregated, anonymized intelligence from searches and job postings. This is the market layer, separate from your personal career insights.
+              Inteligencia agregada e anonimizada de buscas e vagas. Esta e a camada de mercado, separada dos seus insights pessoais de carreira.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-2 rounded-lg border border-white/10 bg-white/[0.035] p-2 text-center">
             {[
-              ["42k", "roles analyzed"],
-              ["1.8k", "companies"],
-              ["16", "industries"],
+              ["42k", "vagas analisadas"],
+              ["1.8k", "empresas"],
+              ["16", "industrias"],
             ].map(([value, label]) => (
               <div key={label} className="rounded-md bg-white/[0.035] px-3 py-2">
                 <p className="text-lg font-semibold text-white">{value}</p>
@@ -225,7 +225,7 @@ export function GlobalMarketIntelligence() {
           >
             <Card className="h-full border-white/10 bg-white/[0.035] shadow-none transition duration-300 hover:-translate-y-0.5 hover:border-emerald-300/25 hover:bg-white/[0.055]">
               <CardContent className="p-4">
-                <div className="mb-4 flex size-9 items-center justify-center rounded-md border border-white/10 bg-slate-950/70">
+                <div className="mb-4 flex size-9 items-center justify-center rounded-md border border-white/10 bg-slate-900/70">
                   <Icon className={`size-4 ${tone}`} />
                 </div>
                 <p className="text-[11px] uppercase tracking-normal text-slate-500">
@@ -239,7 +239,7 @@ export function GlobalMarketIntelligence() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
-        <AnalyticsCard title="Remote vs Hybrid vs Onsite trends">
+        <AnalyticsCard title="Tendencia remoto vs hibrido vs presencial">
           <div className="grid gap-5 sm:grid-cols-[180px_1fr] sm:items-center">
             <div className="h-44">
               <ResponsiveContainer width="100%" height="100%">
@@ -290,7 +290,7 @@ export function GlobalMarketIntelligence() {
           </div>
         </AnalyticsCard>
 
-        <AnalyticsCard title="Hiring trend over time">
+        <AnalyticsCard title="Tendencia de contratacao ao longo do tempo">
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={hiringTrend} margin={{ left: -16, right: 8, top: 8 }}>
@@ -308,8 +308,8 @@ export function GlobalMarketIntelligence() {
                 <XAxis dataKey="month" tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltip />} />
-                <Area type="monotone" dataKey="roles" name="Total roles" stroke="#38bdf8" fill="url(#rolesGradient)" strokeWidth={2} />
-                <Area type="monotone" dataKey="remote" name="Remote roles" stroke="#34d399" fill="url(#remoteGradient)" strokeWidth={2} />
+                <Area type="monotone" dataKey="roles" name="Total de vagas" stroke="#38bdf8" fill="url(#rolesGradient)" strokeWidth={2} />
+                <Area type="monotone" dataKey="remote" name="Vagas remotas" stroke="#34d399" fill="url(#remoteGradient)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -317,7 +317,7 @@ export function GlobalMarketIntelligence() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-3">
-        <AnalyticsCard title="Most requested skills overall">
+        <AnalyticsCard title="Competencias mais pedidas">
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={requestedSkills} layout="vertical" margin={{ left: 22, right: 8 }}>
@@ -332,13 +332,13 @@ export function GlobalMarketIntelligence() {
                   tickLine={false}
                 />
                 <Tooltip content={<ChartTooltip />} />
-                <Bar dataKey="share" name="Share %" radius={[0, 6, 6, 0]} fill="#38bdf8" />
+                <Bar dataKey="share" name="Participacao %" radius={[0, 6, 6, 0]} fill="#38bdf8" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </AnalyticsCard>
 
-        <AnalyticsCard title="Fastest-growing skills">
+        <AnalyticsCard title="Competencias em maior crescimento">
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={fastestGrowingSkills} margin={{ left: -18, right: 14, top: 14 }}>
@@ -346,19 +346,19 @@ export function GlobalMarketIntelligence() {
                 <XAxis dataKey="skill" tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltip />} />
-                <Line type="monotone" dataKey="growth" name="Growth %" stroke="#34d399" strokeWidth={2.5} dot={{ r: 4, fill: "#34d399" }} />
+                <Line type="monotone" dataKey="growth" name="Crescimento %" stroke="#34d399" strokeWidth={2.5} dot={{ r: 4, fill: "#34d399" }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </AnalyticsCard>
 
-        <AnalyticsCard title="Highest salary-correlated skills">
+        <AnalyticsCard title="Competencias mais correlacionadas a salario">
           <div className="space-y-4">
             {salarySkills.map((item) => (
               <div key={item.skill} className="rounded-md border border-white/10 bg-white/[0.035] p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-white">{item.skill}</span>
-                  <span className="text-sm text-emerald-200">R${item.salary.toFixed(1)}k avg</span>
+                  <span className="text-sm text-emerald-200">R${item.salary.toFixed(1)}k media</span>
                 </div>
                 <div className="mt-3 h-2 rounded-full bg-white/10">
                   <div
@@ -373,7 +373,7 @@ export function GlobalMarketIntelligence() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_1fr_1fr]">
-        <AnalyticsCard title="Most active hiring industries">
+        <AnalyticsCard title="Industrias mais ativas em contratacao">
           <div className="space-y-3">
             {industries.map((industry, index) => (
               <div
@@ -392,7 +392,7 @@ export function GlobalMarketIntelligence() {
           </div>
         </AnalyticsCard>
 
-        <AnalyticsCard title="Most active hiring companies">
+        <AnalyticsCard title="Empresas mais ativas em contratacao">
           <div className="space-y-3">
             {companies.map((company) => (
               <div
@@ -403,13 +403,13 @@ export function GlobalMarketIntelligence() {
                   <Building2 className="size-4 text-emerald-200" />
                   {company.name}
                 </span>
-                <span className="text-sm font-medium text-white">{company.roles} roles</span>
+                <span className="text-sm font-medium text-white">{company.roles} vagas</span>
               </div>
             ))}
           </div>
         </AnalyticsCard>
 
-        <AnalyticsCard title="Top cities for hiring">
+        <AnalyticsCard title="Principais cidades para contratacao">
           <div className="space-y-3">
             {topCities.map((city) => (
               <div key={city.city}>
@@ -432,7 +432,7 @@ export function GlobalMarketIntelligence() {
         </AnalyticsCard>
       </div>
 
-      <AnalyticsCard title="Salary distribution">
+      <AnalyticsCard title="Distribuicao salarial">
         <div className="grid gap-5 xl:grid-cols-[1fr_280px]">
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -441,19 +441,19 @@ export function GlobalMarketIntelligence() {
                 <XAxis dataKey="range" tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltip />} />
-                <Bar dataKey="roles" name="Roles" radius={[6, 6, 0, 0]} fill="#34d399" />
+                <Bar dataKey="roles" name="Vagas" radius={[6, 6, 0, 0]} fill="#34d399" />
               </BarChart>
             </ResponsiveContainer>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
             <Sparkles className="size-5 text-emerald-200" />
-            <p className="mt-4 text-sm font-medium text-white">Market read</p>
+            <p className="mt-4 text-sm font-medium text-white">Leitura de mercado</p>
             <p className="mt-2 text-sm leading-6 text-slate-400">
-              Salary bands cluster around R$8k to R$12k, while postings requiring advanced data platforms or planning tools move into the upper range.
+              As faixas salariais se concentram entre R$8k e R$12k, enquanto vagas que pedem plataformas avancadas ou ferramentas de planejamento avancam para o topo.
             </p>
             <div className="mt-5 flex items-center gap-2 text-sm text-emerald-200">
               <TrendingUp className="size-4" />
-              Upper-band roles increased 18% in the last 90 days.
+              Vagas de faixa superior cresceram 18% nos ultimos 90 dias.
             </div>
           </div>
         </div>

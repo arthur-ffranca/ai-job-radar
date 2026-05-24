@@ -5,8 +5,8 @@ import { parseProfileFromResume } from "@/lib/profile-parser";
 import { buildCareerGaps, optimizeResumeDraft } from "@/lib/resume-optimizer";
 
 const fallbackRequest: DemoReportRequest = {
-  resumeName: "No CV uploaded",
-  targetRole: "Selected Role",
+  resumeName: "Nenhum CV enviado",
+  targetRole: "Cargo selecionado",
   jobDescription: "",
   location: "",
   workModel: "any",
@@ -53,10 +53,10 @@ export function generateReport(request: Partial<DemoReportRequest> = {}): JobRad
     fitSignal: primaryAnalysis?.fitSignal || fitSignalFromScore(matchScore),
     relevanceWarning:
       matchScore < 45
-        ? "Your current CV has limited alignment with this target role. Here are the gaps."
+        ? "Seu CV atual tem alinhamento limitado com este cargo-alvo. Veja os gaps abaixo."
         : undefined,
     limitedAnalysisNote: profile.limited
-      ? "No readable CV was uploaded, so this is a limited target-role analysis rather than a full profile match."
+      ? "Nenhum CV legivel foi enviado, entao esta e uma analise limitada por cargo-alvo, nao um match completo de perfil."
       : undefined,
     snapshot: {
       targetRole: primaryAnalysis?.targetRole || normalizedRequest.targetRole,
@@ -69,8 +69,8 @@ export function generateReport(request: Partial<DemoReportRequest> = {}): JobRad
     rankedOpportunities: primaryAnalysis?.rankedOpportunities || [],
     keySkills: primaryAnalysis?.keySkills || [],
     careerGaps: primaryAnalysis?.careerGaps || [],
-    optimizedResume: primaryAnalysis?.optimizedResume || "Upload a CV and select a target role to generate role-specific resume guidance.",
-    reportSummary: primaryAnalysis?.reportSummary || "Upload a CV and select a target role to generate role-specific resume guidance.",
+    optimizedResume: primaryAnalysis?.optimizedResume || "Envie um CV e selecione um cargo-alvo para gerar orientacoes de curriculo especificas.",
+    reportSummary: primaryAnalysis?.reportSummary || "Envie um CV e selecione um cargo-alvo para gerar orientacoes de curriculo especificas.",
     roleAnalyses,
   };
 }
@@ -100,10 +100,10 @@ function buildRoleAnalysis(
     keySkills,
     optimizedResume: bestJob
       ? optimizeResumeDraft(profile, bestJob, request)
-      : "Upload a CV and select a target role to generate role-specific resume guidance.",
+      : "Envie um CV e selecione um cargo-alvo para gerar orientacoes de curriculo especificas.",
     reportSummary:
       matchScore < 45
-        ? `AI Job Radar found limited alignment between the available CV context and ${request.targetRole}. The report focuses on gaps and next steps.`
-        : `AI Job Radar evaluated the uploaded profile against ${request.targetRole} opportunities and ranked the strongest matches by role fit, required skills, seniority, location, work model, and avoided terms.`,
+        ? `O AI Job Radar encontrou alinhamento limitado entre o CV disponivel e ${request.targetRole}. O relatorio foca em gaps e proximos passos.`
+        : `O AI Job Radar avaliou o perfil enviado contra oportunidades de ${request.targetRole} e ranqueou os melhores matches por fit, competencias exigidas, senioridade, localidade, modelo de trabalho e termos evitados.`,
   };
 }

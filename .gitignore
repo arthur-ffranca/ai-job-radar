@@ -22,3 +22,6 @@ Thumbs.db
 __pycache__/
 *.pyc
 backend/tmp_backend_test/
+
+# clerk configuration (can include secrets)
+/.clerk/

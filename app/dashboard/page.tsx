@@ -24,12 +24,12 @@ export default function DashboardPage() {
           <>
           <div className="mb-8 flex items-center justify-between gap-4">
             <div>
-              <Badge variant="pulse">Private dashboard</Badge>
+              <Badge variant="pulse">Painel privado</Badge>
               <h1 className="mt-6 text-4xl font-semibold leading-tight text-white sm:text-5xl">
-                Your AI Job Radar workspace.
+                Seu workspace AI Job Radar.
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">
-                Start a profile analysis, generate a report, and track career intelligence as the product moves through beta.
+                Inicie uma analise de perfil, gere relatorios e acompanhe inteligencia de carreira durante o beta.
               </p>
             </div>
             <UserButton />
@@ -39,26 +39,26 @@ export default function DashboardPage() {
             {[
               {
                 icon: FileText,
-                title: "Generate report",
-                copy: "Upload a CV and create a profile-driven AI Job Radar report.",
+                title: "Gerar relatorio",
+                copy: "Envie um CV e crie um relatorio guiado pelo seu perfil real.",
                 href: "/demo",
               },
               {
                 icon: BarChart3,
-                title: "Market intelligence",
-                copy: "Review global role, salary, skill, and hiring trend signals.",
+                title: "Inteligencia de mercado",
+                copy: "Veja sinais de cargos, salarios, habilidades e tendencias de contratacao.",
                 href: "/report",
               },
               {
                 icon: Radar,
-                title: "Career profile",
-                copy: "Your parsed profile and saved job intelligence will live here.",
+                title: "Perfil de carreira",
+                copy: "Seu perfil extraido e suas analises salvas ficarao aqui.",
                 href: "/demo",
               },
             ].map(({ icon: Icon, title, copy, href }) => (
               <Card
                 key={title}
-                className="border-white/10 bg-slate-950/82 shadow-panel transition duration-300 hover:-translate-y-0.5 hover:border-sky-300/25"
+                className="border-white/10 bg-slate-900/82 shadow-panel transition duration-300 hover:-translate-y-0.5 hover:border-sky-300/25"
               >
                 <CardContent className="p-6">
                   <div className="flex size-10 items-center justify-center rounded-md border border-sky-300/20 bg-sky-300/10 text-sky-200">
@@ -68,7 +68,7 @@ export default function DashboardPage() {
                   <p className="mt-3 text-sm leading-6 text-slate-400">{copy}</p>
                   <Button asChild className="mt-6" variant="accent">
                     <Link href={href}>
-                      Open
+                      Abrir
                       <ArrowRight />
                     </Link>
                   </Button>
@@ -80,22 +80,22 @@ export default function DashboardPage() {
         ) : null}
 
         {isLoaded && !isSignedIn ? (
-          <Card className="mx-auto max-w-3xl border-white/10 bg-slate-950/82 shadow-panel">
+          <Card className="mx-auto max-w-3xl border-white/10 bg-slate-900/82 shadow-panel">
             <CardContent className="p-8 text-center sm:p-10">
               <div className="mx-auto flex size-12 items-center justify-center rounded-md border border-emerald-300/20 bg-emerald-300/10 text-emerald-200">
                 <Shield className="size-6" />
               </div>
               <Badge variant="pulse" className="mt-6">
-                Account required
+                Conta obrigatoria
               </Badge>
               <h1 className="mt-6 text-4xl font-semibold leading-tight text-white">
-                Sign in to access your dashboard.
+                Entre para acessar seu painel.
               </h1>
               <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-400">
-                The product remains public, but reports and saved career profiles require an account.
+                O produto continua publico, mas relatorios e perfis salvos exigem uma conta.
               </p>
               <Button size="lg" className="mt-8" onClick={openAuthPrompt}>
-                Sign In
+                Entrar
                 <ArrowRight />
               </Button>
             </CardContent>

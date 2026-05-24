@@ -43,7 +43,7 @@ export async function POST(request: Request) {
 
     return Response.json(
       {
-        detail: "Resume parser service is unavailable.",
+        detail: "O servico de leitura de CV esta indisponivel.",
         backendUrl,
       },
       { status: 502 }

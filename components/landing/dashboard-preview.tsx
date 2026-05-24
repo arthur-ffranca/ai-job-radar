@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import {
@@ -18,28 +18,28 @@ import { cn } from "@/lib/utils";
 const skills = ["{required_skill_1}", "{required_skill_2}", "{required_skill_3}", "{required_skill_4}"];
 
 const targetProfile = [
-  ["Company", "{company}"],
-  ["Role", "{target_role}"],
-  ["Location", "{location}"],
-  ["Work model", "{work_model}"],
-  ["Salary signal", "{salary_if_available}"],
+  ["Empresa", "{company}"],
+  ["Cargo", "{target_role}"],
+  ["Localidade", "{location}"],
+  ["Modelo", "{work_model}"],
+  ["Salario", "{salary_if_available}"],
 ];
 
 const intelligenceCards = [
   {
-    label: "Keyword coverage",
+    label: "Cobertura de palavras",
     value: "{coverage}%",
-    detail: "Calculated from role-specific requirements",
+    detail: "Calculada a partir dos requisitos da vaga",
   },
   {
-    label: "Salary fit",
+    label: "Fit salarial",
     value: "{salary_fit}",
-    detail: "Compares available salary signal with user target",
+    detail: "Compara salario disponivel com alvo do usuario",
   },
   {
-    label: "Profile gaps",
+    label: "Gaps do perfil",
     value: "{gap_count}",
-    detail: "Missing evidence from CV versus job description",
+    detail: "Evidencias ausentes no CV versus a vaga",
   },
 ];
 
@@ -85,28 +85,28 @@ export function DashboardPreview() {
       className="relative mx-auto mt-14 max-w-6xl"
     >
       <div className="absolute -inset-px rounded-lg bg-[linear-gradient(135deg,rgba(56,189,248,0.28),rgba(15,23,42,0),rgba(52,211,153,0.24))] opacity-80 blur-[1px]" />
-      <div className="relative overflow-hidden rounded-lg border border-white/10 bg-slate-950/92 shadow-panel backdrop-blur">
+      <div className="relative overflow-hidden rounded-lg border border-white/10 bg-slate-900/90 shadow-panel backdrop-blur">
         <div className="flex h-12 items-center justify-between border-b border-white/10 bg-white/[0.035] px-4">
           <div className="flex items-center gap-2">
             <span className="size-2 rounded-full bg-slate-500" />
             <span className="size-2 rounded-full bg-slate-600" />
             <span className="size-2 rounded-full bg-emerald-300/70" />
           </div>
-          <div className="flex items-center gap-2 rounded-md border border-white/10 bg-slate-950/70 px-3 py-1.5 text-xs text-slate-300">
+          <div className="flex items-center gap-2 rounded-md border border-white/10 bg-slate-900/70 px-3 py-1.5 text-xs text-slate-300">
             <LockKeyhole className="size-3.5 text-emerald-200" />
-            Private career profile
+            Perfil de carreira privado
           </div>
         </div>
 
         <div className="grid gap-0 lg:grid-cols-[290px_1fr]">
-          <aside className="border-b border-white/10 bg-slate-950/75 p-5 lg:border-b-0 lg:border-r">
+          <aside className="border-b border-white/10 bg-slate-900/75 p-5 lg:border-b-0 lg:border-r">
             <div className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-md border border-sky-300/20 bg-sky-300/10 text-sky-200">
                 <Radar className="size-5" />
               </div>
               <div>
                 <p className="text-sm font-medium text-white">AI Job Radar</p>
-                <p className="text-xs text-slate-500">Extracted job intelligence</p>
+                <p className="text-xs text-slate-500">Inteligencia extraida da vaga</p>
               </div>
             </div>
 
@@ -131,7 +131,7 @@ export function DashboardPreview() {
 
             <div className="mt-7 rounded-lg border border-white/10 bg-white/[0.03] p-4">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-xs text-slate-500">Requirement density</p>
+                <p className="text-xs text-slate-500">Densidade de requisitos</p>
                 <BriefcaseBusiness className="size-4 text-sky-200" />
               </div>
               <div className="mt-4 flex h-20 items-end gap-1.5">
@@ -150,7 +150,7 @@ export function DashboardPreview() {
                 )}
               </div>
               <p className="mt-3 text-xs leading-5 text-slate-500">
-                AI extracts required skills, business context, compensation hints, and gaps from each posting.
+                A IA extrai competencias, contexto de negocio, sinais de remuneracao e gaps de cada vaga.
               </p>
             </div>
           </aside>
@@ -160,7 +160,7 @@ export function DashboardPreview() {
               <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-glow">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-sm text-emerald-100/75">Match Score</p>
+                    <p className="text-sm text-emerald-100/75">Score de match</p>
                     <p className="mt-3 text-6xl font-semibold leading-none text-white">
                       91
                     </p>
@@ -178,16 +178,16 @@ export function DashboardPreview() {
                   />
                 </div>
                 <p className="mt-4 text-sm leading-6 text-slate-300">
-                  Scores each posting against the uploaded CV profile, selected target role, required skills, salary signal, and detected gaps.
+                  Avalia cada vaga contra o CV enviado, cargo-alvo, competencias exigidas, sinal salarial e gaps detectados.
                 </p>
               </div>
 
               <div className="rounded-lg border border-white/10 bg-white/[0.035] p-5">
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-sm text-slate-500">Top skills</p>
+                    <p className="text-sm text-slate-500">Competencias principais</p>
                     <h3 className="mt-1 text-xl font-semibold text-white">
-                      Required skills extracted from the posting
+                      Requisitos extraidos da vaga
                     </h3>
                   </div>
                   <BarChart3 className="size-5 text-sky-200" />
@@ -206,7 +206,7 @@ export function DashboardPreview() {
                   {intelligenceCards.map(({ label, value, detail }) => (
                     <div
                       key={label}
-                      className="rounded-lg border border-white/10 bg-slate-950/55 p-3"
+                      className="rounded-lg border border-white/10 bg-slate-900/65 p-3"
                     >
                       <p className="text-xs text-slate-500">{label}</p>
                       <p className="mt-2 text-lg font-semibold text-white">
@@ -224,9 +224,9 @@ export function DashboardPreview() {
             <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.035] p-5">
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm text-slate-500">Ranked opportunities</p>
+                  <p className="text-sm text-slate-500">Oportunidades ranqueadas</p>
                   <h3 className="mt-1 text-xl font-semibold text-white">
-                    Prioritized by match score, role context, salary signal, and profile gaps
+                    Priorizadas por score, contexto do cargo, salario e gaps do perfil
                   </h3>
                 </div>
                 <SearchCheck className="size-5 text-sky-200" />
@@ -239,7 +239,7 @@ export function DashboardPreview() {
                       "grid gap-4 rounded-lg border p-4 transition duration-300 hover:-translate-y-0.5 hover:border-sky-300/30 lg:grid-cols-[1fr_auto] lg:items-center",
                       index === 0
                         ? "border-sky-300/25 bg-sky-300/10"
-                        : "border-white/10 bg-slate-950/55"
+                        : "border-white/10 bg-slate-900/65"
                     )}
                   >
                     <div className="min-w-0">
@@ -254,7 +254,7 @@ export function DashboardPreview() {
                       <div className="mt-3 grid gap-2 text-xs text-slate-400 sm:grid-cols-3">
                         <span className="flex items-center gap-1.5">
                           <MapPin className="size-3.5 text-sky-200" />
-                          {opportunity.location} · {opportunity.workModel}
+                          {opportunity.location} - {opportunity.workModel}
                         </span>
                         <span className="flex items-center gap-1.5">
                           <Gauge className="size-3.5 text-emerald-200" />
@@ -292,3 +292,4 @@ export function DashboardPreview() {
     </motion.div>
   );
 }
+

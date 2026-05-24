@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -48,80 +49,80 @@ const motionCard = {
 const workflow: IconItem[] = [
   {
     icon: Upload,
-    title: "Upload your resume",
-    copy: "Add your current CV as the private career profile baseline.",
+    title: "Envie seu CV",
+    copy: "Use seu curriculo atual como base privada do perfil profissional.",
   },
   {
     icon: Target,
-    title: "Choose your target role",
-    copy: "Set the role, location, seniority, and salary range you care about.",
+    title: "Escolha cargos-alvo",
+    copy: "Defina cargo, localidade, senioridade e preferencias de oportunidade.",
   },
   {
     icon: SearchCheck,
-    title: "AI scans the market",
-    copy: "Analyze job posts, company signals, and recurring skill demand.",
+    title: "A IA escaneia o mercado",
+    copy: "Analise vagas, sinais das empresas e demanda recorrente de habilidades.",
   },
   {
     icon: Gauge,
-    title: "Get match scores",
-    copy: "Prioritize roles by fit, keyword coverage, and realistic gaps.",
+    title: "Receba scores de match",
+    copy: "Priorize vagas por fit, cobertura de palavras-chave e gaps realistas.",
   },
   {
     icon: FileText,
-    title: "Download an optimized resume and report",
-    copy: "Turn the score into focused application assets.",
+    title: "Baixe CV otimizado e relatorio",
+    copy: "Transforme o score em materiais claros para candidatura.",
   },
 ];
 
 const features: IconItem[] = [
   {
     icon: Gauge,
-    title: "AI Match Score",
-    copy: "A clear fit score based on skills, seniority, salary, keywords, and role quality.",
+    title: "Score de match com IA",
+    copy: "Um score claro baseado em habilidades, senioridade, salario, palavras-chave e qualidade da vaga.",
   },
   {
     icon: WandSparkles,
-    title: "Resume Optimization",
-    copy: "Rewrite suggestions that keep your evidence intact and align it to each role.",
+    title: "Otimizacao de CV",
+    copy: "Sugestoes de reescrita que preservam suas evidencias e alinham o CV a cada cargo.",
   },
   {
     icon: TrendingUp,
-    title: "Market Skill Detection",
-    copy: "Identify which tools, stacks, and business skills are showing up most often.",
+    title: "Deteccao de habilidades do mercado",
+    copy: "Identifique ferramentas, stacks e habilidades de negocio mais citadas nas vagas.",
   },
   {
     icon: ListFilter,
-    title: "Ranked Opportunities",
-    copy: "See which jobs deserve attention before spending time on the application.",
+    title: "Oportunidades ranqueadas",
+    copy: "Veja quais vagas merecem atencao antes de gastar tempo na candidatura.",
   },
   {
     icon: Layers3,
-    title: "Career Gaps",
-    copy: "Spot missing proof points and skills before a recruiter does.",
+    title: "Gaps de carreira",
+    copy: "Identifique provas e habilidades ausentes antes de um recrutador perceber.",
   },
   {
     icon: FileSearch,
-    title: "Job Intelligence Report",
-    copy: "Generate a concise report with fit logic, risks, keywords, and next actions.",
+    title: "Relatorio de inteligencia da vaga",
+    copy: "Gere um relatorio com logica de fit, riscos, palavras-chave e proximas acoes.",
   },
 ];
 
 const insights = [
-  ["Role-specific requirements", 83],
-  ["Tool proficiency", 71],
-  ["Industry context", 42],
-  ["Seniority signal", 58],
+  ["Requisitos especificos do cargo", 83],
+  ["Ferramentas exigidas", 71],
+  ["Contexto da industria", 42],
+  ["Sinal de senioridade", 58],
 ] as const;
 
 const problemPoints = [
-  "Job boards optimize for volume, not fit.",
-  "Resumes are sent before the strategy is clear.",
-  "Candidates rarely see which skills the market is actually rewarding.",
+  "Portais de vaga otimizam volume, nao fit.",
+  "Curriculos sao enviados antes da estrategia ficar clara.",
+  "Candidatos raramente enxergam quais habilidades o mercado esta valorizando.",
 ];
 
 function ProblemSection() {
   return (
-    <section className="relative border-b border-white/10 bg-slate-950/35 px-5 py-24 sm:px-6 lg:px-8">
+    <section className="relative border-b border-white/10 bg-slate-900/35 px-5 py-24 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="grid items-end gap-10 lg:grid-cols-[0.95fr_1.05fr]">
           <motion.div
@@ -131,12 +132,12 @@ function ProblemSection() {
             viewport={{ once: true, amount: 0.35 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            <p className="text-sm font-medium text-sky-200">The problem</p>
+            <p className="text-sm font-medium text-sky-200">O problema</p>
             <h2 className="mt-4 max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
-              Hundreds of applications. Little clarity. No strategy.
+              Centenas de candidaturas. Pouca clareza. Nenhuma estrategia.
             </h2>
             <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">
-              AI Job Radar turns the search from a volume game into a structured intelligence workflow.
+              O AI Job Radar transforma a busca por vagas em um fluxo estruturado de inteligencia.
             </p>
           </motion.div>
 
@@ -174,9 +175,9 @@ function WorkflowSection() {
     >
       <div className="mx-auto max-w-7xl">
         <SectionIntro
-          eyebrow="Workflow"
-          title="From resume upload to a sharper application."
-          copy="Each step is designed to support a future report API without changing the frontend structure."
+          eyebrow="Fluxo"
+          title="Do upload do CV a uma candidatura mais forte."
+          copy="Cada etapa foi pensada para conectar depois a uma API completa de relatorios sem refazer a interface."
         />
 
         <div className="mt-14 grid gap-4 md:grid-cols-5">
@@ -216,14 +217,14 @@ function FeaturesSection() {
   return (
     <section
       id="features"
-      className="relative overflow-hidden border-b border-white/10 bg-slate-950/35 px-5 py-24 sm:px-6 lg:px-8"
+      className="relative overflow-hidden border-b border-white/10 bg-slate-900/35 px-5 py-24 sm:px-6 lg:px-8"
     >
       <div className="absolute inset-0 fine-grid opacity-35" aria-hidden="true" />
       <div className="relative mx-auto max-w-7xl">
         <SectionIntro
-          eyebrow="Features"
-          title="Real product surfaces for a smarter job search."
-          copy="Concise tools for deciding where to apply, how to position, and what to improve."
+          eyebrow="Recursos"
+          title="Superficies reais de produto para uma busca mais inteligente."
+          copy="Ferramentas objetivas para decidir onde aplicar, como se posicionar e o que melhorar."
         />
 
         <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -236,7 +237,7 @@ function FeaturesSection() {
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.45, delay: index * 0.04 }}
             >
-              <Card className="h-full border-white/10 bg-slate-950/78 shadow-none backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-emerald-300/25 hover:bg-white/[0.05]">
+              <Card className="h-full border-white/10 bg-slate-900/78 shadow-none backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-emerald-300/25 hover:bg-white/[0.05]">
                 <CardHeader className="p-5">
                   <div className="mb-5 flex size-10 items-center justify-center rounded-md border border-emerald-300/20 bg-emerald-300/10 text-emerald-200">
                     <Icon className="size-5" />
@@ -281,12 +282,12 @@ function InsightsSection() {
           viewport={{ once: true, amount: 0.35 }}
           transition={{ duration: 0.5 }}
         >
-          <Badge variant="pulse">Market intelligence</Badge>
+          <Badge variant="pulse">Inteligencia de mercado</Badge>
           <h2 className="mt-6 text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
-            Know which skills the market is asking for.
+            Saiba quais habilidades o mercado esta pedindo.
           </h2>
           <p className="mt-5 text-base leading-7 text-slate-400 sm:text-lg">
-            AI Job Radar turns job descriptions into a skills signal, then compares that demand against your profile.
+            O AI Job Radar transforma descricoes de vaga em sinais de habilidades e compara essa demanda com seu perfil.
           </p>
         </motion.div>
 
@@ -296,13 +297,13 @@ function InsightsSection() {
           whileInView="show"
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5, delay: 0.08 }}
-          className="rounded-lg border border-white/10 bg-slate-950/88 p-5 shadow-panel"
+          className="rounded-lg border border-white/10 bg-slate-900/88 p-5 shadow-panel"
         >
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <div>
-              <p className="text-sm text-slate-500">Analyzed roles</p>
+              <p className="text-sm text-slate-500">Cargos analisados</p>
               <h3 className="mt-1 text-xl font-semibold text-white">
-                Sample skill frequency
+                Frequencia de habilidades
               </h3>
             </div>
             <BarChart3 className="size-5 text-sky-200" />
@@ -313,7 +314,7 @@ function InsightsSection() {
               <div key={skill}>
                 <div className="mb-2 flex items-center justify-between text-sm">
                   <span className="text-slate-300">
-                    {skill} detected in {value}% of analyzed roles
+                    {skill} aparece em {value}% dos cargos analisados
                   </span>
                   <span className="font-medium text-white">{value}%</span>
                 </div>
@@ -354,15 +355,15 @@ function BetaCTA() {
       className="relative overflow-hidden px-5 py-24 sm:px-6 lg:px-8"
     >
       <div className="absolute inset-0 fine-grid opacity-35" aria-hidden="true" />
-      <div className="relative mx-auto max-w-5xl rounded-lg border border-white/10 bg-slate-950/92 p-8 text-center shadow-panel sm:p-12">
+      <div className="relative mx-auto max-w-5xl rounded-lg border border-white/10 bg-slate-900/90 p-8 text-center shadow-panel sm:p-12">
         <Badge variant="outline" className="border-emerald-300/20 text-emerald-100">
-          Private beta
+          Beta privado
         </Badge>
         <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-5xl">
-          Be among the first to use AI Job Radar.
+          Esteja entre os primeiros a usar o AI Job Radar.
         </h2>
         <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">
-          Join early access and help shape the career intelligence workflow before public launch.
+          Entre no acesso antecipado e ajude a moldar o fluxo de inteligencia de carreira antes do lancamento publico.
         </p>
 
         <form
@@ -373,23 +374,23 @@ function BetaCTA() {
             required
             type="email"
             placeholder="you@email.com"
-            aria-label="Email address"
+            aria-label="Endereco de e-mail"
             value={email}
             onChange={(event) => {
               setEmail(event.target.value);
               setSubmitted(false);
             }}
-            className="h-11 border-white/10 bg-slate-950/70"
+            className="h-11 border-white/10 bg-slate-900/70"
           />
           <Button type="submit" className="h-11">
-            {submitted ? "Joined" : "Join Beta"}
+            {submitted ? "Registrado" : "Entrar no beta"}
             {submitted ? <Check /> : <ArrowRight />}
           </Button>
         </form>
         <p className="mx-auto mt-3 max-w-xl text-xs leading-5 text-slate-500">
           {submitted
-            ? "Beta interest saved for this browser. Account creation is available through Clerk while the backend waitlist is being connected."
-            : "Early access accounts are handled through Clerk; this waitlist capture is a temporary beta placeholder."}
+            ? "Interesse no beta salvo neste navegador. A criacao de conta ja esta disponivel pelo Clerk enquanto conectamos a lista de espera ao backend."
+            : "As contas de acesso antecipado passam pelo Clerk; este campo e um placeholder temporario da lista de espera."}
         </p>
       </div>
     </section>
@@ -401,7 +402,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-background text-foreground">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-950/72 backdrop-blur-xl">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-900/72 backdrop-blur-xl">
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
           <a href="#product" className="flex items-center gap-3 text-sm font-semibold text-white">
             <span className="flex size-8 items-center justify-center rounded-md border border-sky-300/20 bg-sky-300/10 text-sky-200">
@@ -411,30 +412,30 @@ export default function Home() {
           </a>
           <div className="hidden items-center gap-7 text-sm text-slate-400 md:flex">
             <a className="transition hover:text-white" href="#product">
-              Product
+              Produto
             </a>
             <a className="transition hover:text-white" href="#workflow">
-              Workflow
+              Fluxo
             </a>
             <a className="transition hover:text-white" href="#features">
-              Features
+              Recursos
             </a>
             <a className="transition hover:text-white" href="#insights">
-              Insights
+              Inteligencia
             </a>
             <a className="transition hover:text-white" href="#beta">
-              Join Beta
+              Entrar no beta
             </a>
           </div>
           <div className="flex items-center gap-2">
             <Button asChild size="sm" variant="ghost">
-              <a href="/sign-in">Sign In</a>
+              <Link href="/sign-in">Entrar</Link>
             </Button>
             <Button asChild size="sm" variant="accent">
-              <a href="/sign-up">
-                Join Beta
+              <Link href="/sign-up">
+                Entrar no beta
                 <ChevronRight />
-              </a>
+              </Link>
             </Button>
           </div>
         </nav>
@@ -455,21 +456,21 @@ export default function Home() {
             transition={{ duration: 0.65, ease: "easeOut" }}
             className="mx-auto max-w-4xl text-center"
           >
-            <Badge variant="pulse">Career Intelligence powered by AI</Badge>
+            <Badge variant="pulse">Inteligencia de carreira com IA</Badge>
             <h1 className="mt-7 text-balance text-5xl font-semibold leading-[0.98] text-white sm:text-6xl lg:text-7xl">
-              Find the opportunities that truly match your profile.
+              Encontre as oportunidades que realmente combinam com seu perfil.
             </h1>
             <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-slate-300 sm:text-xl">
-              AI Job Radar analyzes job postings, detects market skills, scores your fit, and helps you optimize your resume for the best opportunities.
+              O AI Job Radar analisa vagas, detecta habilidades de mercado, calcula seu fit e ajuda a otimizar seu CV para as melhores oportunidades.
             </p>
             <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
               <Button size="lg" onClick={openAuthPrompt}>
-                Analyze My Profile
+                Analisar meu perfil
                 <ArrowRight />
               </Button>
               <Button asChild size="lg" variant="outline">
                 <a href="/demo">
-                  View Demo
+                  Ver demo
                   <BriefcaseBusiness />
                 </a>
               </Button>

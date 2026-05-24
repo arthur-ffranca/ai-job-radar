@@ -6,15 +6,15 @@ import { FileSearch, Radar, SearchCheck, Sparkles } from "lucide-react";
 const analysisSteps = [
   {
     icon: FileSearch,
-    label: "Reading resume signals",
+    label: "Lendo sinais do curriculo",
   },
   {
     icon: SearchCheck,
-    label: "Comparing market demand",
+    label: "Comparando demanda do mercado",
   },
   {
     icon: Sparkles,
-    label: "Preparing career strategy",
+    label: "Preparando estrategia de carreira",
   },
 ];
 
@@ -25,7 +25,7 @@ export function AnalysisLoadingOverlay() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/88 px-5 backdrop-blur-xl"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/88 px-5 backdrop-blur-xl"
       role="status"
       aria-live="polite"
     >
@@ -39,7 +39,7 @@ export function AnalysisLoadingOverlay() {
         initial={{ opacity: 0.96, y: 14, scale: 0.985 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.45, ease: "easeOut" }}
-        className="relative w-full max-w-2xl overflow-hidden rounded-lg border border-white/10 bg-slate-950/92 p-6 text-center shadow-panel"
+        className="relative w-full max-w-2xl overflow-hidden rounded-lg border border-white/10 bg-slate-900/90 p-6 text-center shadow-panel"
       >
         <div
           className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(56,189,248,0.08),transparent_44%,rgba(52,211,153,0.08))]"
@@ -51,10 +51,10 @@ export function AnalysisLoadingOverlay() {
           </div>
 
           <p className="mt-6 text-sm font-medium text-emerald-100">
-            Generating AI Job Report
+            Gerando relatorio AI Job Radar
           </p>
           <h2 className="mx-auto mt-3 max-w-xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
-            Analyzing profile, skills, and market fit.
+            Analisando perfil, habilidades e fit com o mercado.
           </h2>
 
           <div className="mx-auto mt-8 h-2 max-w-md overflow-hidden rounded-full bg-white/10">

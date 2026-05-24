@@ -5,7 +5,6 @@ import {
   type ReactNode,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -50,12 +49,6 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
     return false;
   }, [isLoaded, isSignedIn]);
 
-  useEffect(() => {
-    if (isSignedIn) {
-      setIsOpen(false);
-    }
-  }, [isSignedIn]);
-
   const value = useMemo(
     () => ({
       isAuthLoaded: Boolean(isLoaded),
@@ -65,14 +58,15 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
     }),
     [isLoaded, isSignedIn, openAuthPrompt, requireAuth]
   );
+  const shouldShowPrompt = isOpen && !isSignedIn;
 
   return (
     <AuthPromptContext.Provider value={value}>
       {children}
       <AnimatePresence>
-        {isOpen ? (
+        {shouldShowPrompt ? (
           <motion.div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/82 px-5 backdrop-blur-xl"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/82 px-5 backdrop-blur-xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -91,7 +85,7 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={() => setIsOpen(false)}
                 className="absolute right-4 top-4 rounded-md border border-white/10 bg-white/[0.035] p-2 text-slate-400 transition hover:text-white"
-                aria-label="Close authentication modal"
+                aria-label="Fechar modal de autenticacao"
               >
                 <X className="size-4" />
               </button>
@@ -102,24 +96,24 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
 
               <p className="mt-5 inline-flex items-center gap-2 rounded-md border border-sky-300/20 bg-sky-300/10 px-2.5 py-1 text-xs font-medium text-sky-100">
                 <Sparkles className="size-3.5" />
-                Private beta access
+                Acesso ao beta privado
               </p>
 
               <h2
                 id="auth-modal-title"
                 className="mt-5 text-2xl font-semibold leading-tight text-white"
               >
-                Create your free AI Job Radar account to generate your report.
+                Crie sua conta gratuita no AI Job Radar para gerar seu relatorio.
               </h2>
 
               <p className="mt-3 text-sm leading-6 text-slate-400">
-                Save your career profile, generate reports, and return to your dashboard when new market signals appear.
+                Salve seu perfil profissional, gere relatorios e acompanhe novos sinais de mercado no seu painel.
               </p>
 
               <div className="mt-6 space-y-3">
                 <Button asChild type="button" size="lg" className="h-12 w-full">
                   <Link href="/sign-up">
-                    Continue with Google
+                    Continuar com Google
                     <ArrowRight />
                   </Link>
                 </Button>
@@ -133,13 +127,13 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
                 >
                   <Link href="/sign-up">
                     <Mail />
-                    Continue with email
+                    Continuar com e-mail
                   </Link>
                 </Button>
               </div>
 
               <p className="mt-5 text-center text-xs leading-5 text-slate-500">
-                No auto-apply, no spam. AI Job Radar is built for career strategy and private profile intelligence.
+                Sem auto-apply e sem spam. O AI Job Radar foi criado para estrategia de carreira e inteligencia privada do seu perfil.
               </p>
             </motion.div>
           </motion.div>
@@ -153,7 +147,7 @@ export function useAuthPrompt() {
   const context = useContext(AuthPromptContext);
 
   if (!context) {
-    throw new Error("useAuthPrompt must be used inside AuthPromptProvider.");
+    throw new Error("useAuthPrompt deve ser usado dentro de AuthPromptProvider.");
   }
 
   return context;

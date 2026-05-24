@@ -60,8 +60,8 @@ export function scoreJob(
 }
 
 export function fitSignalFromScore(score: number) {
-  if (score >= 80) return "Strong match";
-  if (score >= 60) return "Promising match";
-  if (score >= 45) return "Partial match";
-  return "Limited alignment";
+  if (score >= 80) return "Forte aderencia";
+  if (score >= 60) return "Boa aderencia";
+  if (score >= 45) return "Aderencia parcial";
+  return "Baixa aderencia";
 }

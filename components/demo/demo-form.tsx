@@ -27,6 +27,13 @@ import { ParseResumeDebugError, parseResumeFile } from "@/lib/resume-parser-clie
 import { cn } from "@/lib/utils";
 
 const seniorityOptions: Seniority[] = ["Any", "Junior", "Mid-level", "Senior", "Lead"];
+const seniorityLabels: Record<Seniority, string> = {
+  Any: "Qualquer",
+  Junior: "Junior",
+  "Mid-level": "Pleno",
+  Senior: "Senior",
+  Lead: "Lideranca",
+};
 const workModelOptions: { label: string; value: WorkModel }[] = [
   { label: "Qualquer", value: "any" },
   { label: "Remoto", value: "remote" },
@@ -314,7 +321,7 @@ export function DemoForm() {
       });
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Error parsing CV.";
+        error instanceof Error ? error.message : "Erro ao ler o CV.";
       const parserDebug = error instanceof ParseResumeDebugError ? error.debugResult : null;
       console.log("[AI Job Radar] parsing failed", {
         message,
@@ -395,7 +402,7 @@ export function DemoForm() {
       transition={{ duration: 0.55, ease: "easeOut" }}
       className="relative mx-auto grid max-w-6xl gap-6 lg:grid-cols-[0.92fr_1.08fr]"
     >
-      <Card className="border-white/10 bg-slate-950/82 shadow-panel backdrop-blur">
+      <Card className="border-white/10 bg-slate-900/82 shadow-panel backdrop-blur">
         <CardHeader className="p-6 sm:p-8">
           <div className="mb-5 flex size-11 items-center justify-center rounded-md border border-sky-300/20 bg-sky-300/10 text-sky-200">
             <Sparkles className="size-5" />
@@ -421,7 +428,7 @@ export function DemoForm() {
                 accept=".pdf,.docx"
                 disabled={isLoading || isParsing}
                 onChange={(event) => void handleFileChange(event.currentTarget.files?.[0])}
-                className="block w-full cursor-pointer rounded-lg border border-dashed border-white/15 bg-slate-950/55 p-4 text-sm text-slate-400 file:mr-4 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-950 hover:border-sky-300/25 disabled:cursor-not-allowed disabled:opacity-60"
+                className="block w-full cursor-pointer rounded-lg border border-dashed border-white/15 bg-slate-900/65 p-4 text-sm text-slate-400 file:mr-4 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-950 hover:border-sky-300/25 disabled:cursor-not-allowed disabled:opacity-60"
               />
               <p className="mt-2 text-xs text-slate-500">
                 Apenas PDF ou DOCX. O arquivo e enviado como multipart/form-data para o parser de curriculos.
@@ -489,7 +496,7 @@ export function DemoForm() {
                       addTargetRole();
                     }
                   }}
-                  className="h-11 border-white/10 bg-slate-950/55"
+                  className="h-11 border-white/10 bg-slate-900/65"
                 />
                 <div className="mt-2 flex flex-wrap gap-2">
                   {formData.targetRoles.map((role) => (
@@ -532,7 +539,7 @@ export function DemoForm() {
                   onChange={(event) =>
                     updateFormField("location", event.target.value)
                   }
-                  className="h-11 border-white/10 bg-slate-950/55"
+                  className="h-11 border-white/10 bg-slate-900/65"
                 />
               </label>
             </div>
@@ -550,11 +557,11 @@ export function DemoForm() {
                   onChange={(event) =>
                     updateFormField("seniority", event.target.value as Seniority)
                   }
-                  className="h-11 w-full rounded-md border border-white/10 bg-slate-950/55 px-3 text-sm text-white outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+                  className="h-11 w-full rounded-md border border-white/10 bg-slate-900/65 px-3 text-sm text-white outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {seniorityOptions.map((option) => (
                     <option key={option} value={option}>
-                      {option}
+                      {seniorityLabels[option]}
                     </option>
                   ))}
                 </select>
@@ -572,7 +579,7 @@ export function DemoForm() {
                   onChange={(event) =>
                     updateFormField("workModel", event.target.value as WorkModel)
                   }
-                  className="h-11 w-full rounded-md border border-white/10 bg-slate-950/55 px-3 text-sm text-white outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+                  className="h-11 w-full rounded-md border border-white/10 bg-slate-900/65 px-3 text-sm text-white outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {workModelOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -596,7 +603,7 @@ export function DemoForm() {
                 onChange={(event) =>
                   updateFormField("desiredIndustry", event.target.value)
                 }
-                className="h-11 border-white/10 bg-slate-950/55"
+                className="h-11 border-white/10 bg-slate-900/65"
               />
             </label>
 
@@ -613,7 +620,7 @@ export function DemoForm() {
                 onChange={(event) =>
                   updateFormField("jobDescription", event.target.value)
                 }
-                className="min-h-32 w-full resize-y rounded-md border border-white/10 bg-slate-950/55 px-3 py-3 text-sm leading-6 text-white outline-none ring-offset-background transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+                className="min-h-32 w-full resize-y rounded-md border border-white/10 bg-slate-900/65 px-3 py-3 text-sm leading-6 text-white outline-none ring-offset-background transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
               />
               <p className="mt-2 text-xs leading-5 text-slate-500">
                 Opcional, mas recomendado. Quando voce cola uma vaga, o relatorio fica especifico para aquela oportunidade em vez de usar apenas sinais gerais de mercado.
@@ -634,7 +641,7 @@ export function DemoForm() {
                   onChange={(event) =>
                     updateFormField("mustHaveKeywords", event.target.value)
                   }
-                  className="h-11 border-white/10 bg-slate-950/55"
+                  className="h-11 border-white/10 bg-slate-900/65"
                 />
               </label>
 
@@ -651,7 +658,7 @@ export function DemoForm() {
                   onChange={(event) =>
                     updateFormField("avoidKeywords", event.target.value)
                   }
-                  className="h-11 border-white/10 bg-slate-950/55"
+                  className="h-11 border-white/10 bg-slate-900/65"
                 />
               </label>
             </div>
@@ -716,38 +723,38 @@ export function DemoForm() {
           <CardHeader className="p-5">
             <div className="flex items-center gap-3">
               <FileText className="size-5 text-sky-100" />
-              <CardTitle className="text-xl">Parser debug output</CardTitle>
+              <CardTitle className="text-xl">Saida de debug do parser</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-4 p-5 pt-0">
             {formData.uploadStatus === "error" ? (
               <div className="rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-100">
                 {rawTextLength === 0
-                  ? "No text extracted"
-                  : formData.uploadMessage || "LLM parsing failed"}
+                  ? "Nenhum texto extraido"
+                  : formData.uploadMessage || "Falha na leitura por IA"}
               </div>
             ) : null}
             {profileIncomplete ? (
               <div className="rounded-md border border-amber-300/20 bg-amber-400/10 p-3 text-sm text-amber-100">
-                Profile extraction incomplete
+                Extracao do perfil incompleta
               </div>
             ) : null}
             {llmParsingFailed ? (
               <div className="rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-100">
-                LLM parsing failed: {String(debugEnvelope?.parser_error)}
+                Falha na leitura por IA: {String(debugEnvelope?.parser_error)}
               </div>
             ) : null}
             <div className="grid gap-3 sm:grid-cols-2">
               {[
-                ["raw_text_length", String(rawTextLength)],
-                ["detected name", formData.parsedProfile?.name || "Not detected"],
-                ["detected skills", formData.parsedProfile?.skills.join(", ") || "Not detected"],
-                ["detected education", formData.parsedProfile?.education.join(", ") || "Not detected"],
-                ["detected languages", formData.parsedProfile?.languages.join(", ") || "Not detected"],
+                ["tamanho do texto extraido", String(rawTextLength)],
+                ["nome detectado", formData.parsedProfile?.name || "Nao detectado"],
+                ["competencias detectadas", formData.parsedProfile?.skills.join(", ") || "Nao detectado"],
+                ["formacao detectada", formData.parsedProfile?.education.join(", ") || "Nao detectado"],
+                ["idiomas detectados", formData.parsedProfile?.languages.join(", ") || "Nao detectado"],
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="rounded-md border border-white/10 bg-slate-950/55 p-3"
+                  className="rounded-md border border-white/10 bg-slate-900/65 p-3"
                 >
                   <p className="text-xs text-slate-500">{label}</p>
                   <p className="mt-1 break-words text-sm leading-5 text-slate-200">
@@ -757,14 +764,14 @@ export function DemoForm() {
               ))}
             </div>
             <div>
-              <p className="mb-2 text-xs text-slate-500">parsedProfile JSON</p>
-              <pre className="max-h-72 overflow-auto rounded-md border border-white/10 bg-black/40 p-3 text-xs leading-5 text-slate-300">
+              <p className="mb-2 text-xs text-slate-500">JSON do perfil extraido</p>
+              <pre className="max-h-72 overflow-auto rounded-md border border-white/10 bg-slate-950/70 p-3 text-xs leading-5 text-slate-300">
                 {JSON.stringify(formData.parsedProfile, null, 2)}
               </pre>
             </div>
             <div>
-              <p className="mb-2 text-xs text-slate-500">API response debug JSON</p>
-              <pre className="max-h-72 overflow-auto rounded-md border border-white/10 bg-black/40 p-3 text-xs leading-5 text-slate-300">
+              <p className="mb-2 text-xs text-slate-500">JSON de debug da API</p>
+              <pre className="max-h-72 overflow-auto rounded-md border border-white/10 bg-slate-950/70 p-3 text-xs leading-5 text-slate-300">
                 {JSON.stringify(formData.parserDebug, null, 2)}
               </pre>
             </div>
@@ -777,38 +784,38 @@ export function DemoForm() {
           <CardHeader className="p-5">
             <div className="flex items-center gap-3">
               <UserRound className="size-5 text-emerald-100" />
-              <CardTitle className="text-xl">Extracted CV profile</CardTitle>
+              <CardTitle className="text-xl">Perfil extraido do CV</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="grid gap-3 p-5 pt-0 sm:grid-cols-2">
             {[
-              ["Name", formData.parsedProfile.name],
+              ["Nome", formData.parsedProfile.name],
               ["Headline", formData.parsedProfile.headline],
-              ["Current role", formData.parsedProfile.currentRole],
-              ["Current company", formData.parsedProfile.currentCompany],
+              ["Cargo atual", formData.parsedProfile.currentRole],
+              ["Empresa atual", formData.parsedProfile.currentCompany],
               ["Email", formData.parsedProfile.email],
-              ["Phone", formData.parsedProfile.phone],
-              ["Location", formData.parsedProfile.location],
+              ["Telefone", formData.parsedProfile.phone],
+              ["Localidade", formData.parsedProfile.location],
               [
-                "Seniority",
+                "Senioridade",
                 [formData.parsedProfile.seniorityLevel, formData.parsedProfile.seniorityConfidence]
                   .filter(Boolean)
                   .join(" - "),
               ],
-              ["Tools", formData.parsedProfile.tools.join(", ")],
-              ["Technical skills", formData.parsedProfile.technicalSkills.join(", ")],
-              ["Business skills", formData.parsedProfile.businessSkills.join(", ")],
-              ["Languages", formData.parsedProfile.languages.join(", ")],
-              ["Education", formData.parsedProfile.education.join(", ")],
-              ["Certifications", formData.parsedProfile.certifications.join(", ")],
+              ["Ferramentas", formData.parsedProfile.tools.join(", ")],
+              ["Competencias tecnicas", formData.parsedProfile.technicalSkills.join(", ")],
+              ["Competencias de negocio", formData.parsedProfile.businessSkills.join(", ")],
+              ["Idiomas", formData.parsedProfile.languages.join(", ")],
+              ["Formacao", formData.parsedProfile.education.join(", ")],
+              ["Certificacoes", formData.parsedProfile.certifications.join(", ")],
             ].map(([label, value]) => (
               <div
                 key={label}
-                className="rounded-md border border-white/10 bg-slate-950/55 p-3"
+                className="rounded-md border border-white/10 bg-slate-900/65 p-3"
               >
                 <p className="text-xs text-slate-500">{label}</p>
                 <p className="mt-1 text-sm leading-5 text-slate-200">
-                  {value || "Not detected"}
+                  {value || "Nao detectado"}
                 </p>
               </div>
             ))}
@@ -817,9 +824,9 @@ export function DemoForm() {
         ) : null}
 
         {[
-          ["Resume parsing", "Extracts experience, tools, achievements, and seniority signals."],
-          ["Market scan", "Compares the profile against ranked roles and skill demand."],
-          ["Report generation", "Returns match score, gaps, opportunities, and optimized assets."],
+          ["Leitura do CV", "Extrai experiencia, ferramentas, conquistas e sinais de senioridade."],
+          ["Analise de mercado", "Compara o perfil com cargos ranqueados e demanda por competencias."],
+          ["Geracao do relatorio", "Retorna score, gaps, oportunidades e materiais otimizados."],
         ].map(([title, copy], index) => (
           <motion.div
             key={title}

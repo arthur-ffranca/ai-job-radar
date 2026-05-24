@@ -15,38 +15,38 @@ import {
 const snapshot = [
   {
     icon: BriefcaseBusiness,
-    label: "Target Role",
+    label: "Cargo-alvo",
     value: "{target_role}",
   },
   {
     icon: Building2,
-    label: "Company",
+    label: "Empresa",
     value: "{company}",
   },
   {
     icon: MapPin,
-    label: "Work Model",
+    label: "Modelo",
     value: "{work_model}",
   },
   {
     icon: BadgeDollarSign,
-    label: "Estimated Salary",
+    label: "Salario estimado",
     value: "{salary_if_available}",
   },
   {
     icon: Globe2,
-    label: "Location",
+    label: "Localidade",
     value: "{location}",
   },
   {
     icon: Code2,
-    label: "Key Skills",
-    value: "Extracted from job description",
+    label: "Competencias-chave",
+    value: "Extraidas da vaga",
   },
   {
     icon: SignalHigh,
-    label: "Fit Signal",
-    value: "Calculated from match score",
+    label: "Sinal de fit",
+    value: "Calculado pelo score",
   },
 ];
 
@@ -58,20 +58,20 @@ export function JobIntelligenceSnapshot() {
       transition={{ duration: 0.55, delay: 0.12, ease: "easeOut" }}
       className="mx-auto mt-10 max-w-6xl"
     >
-      <div className="relative overflow-hidden rounded-lg border border-white/10 bg-slate-950/58 p-2 shadow-glow backdrop-blur-xl">
+      <div className="relative overflow-hidden rounded-lg border border-white/10 bg-slate-900/65 p-2 shadow-glow backdrop-blur-xl">
         <div
           className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(56,189,248,0.08),transparent_42%,rgba(52,211,153,0.08))]"
           aria-hidden="true"
         />
-        <div className="relative mb-2 flex flex-col gap-2 rounded-md border border-white/10 bg-slate-950/55 px-3 py-2 text-left sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative mb-2 flex flex-col gap-2 rounded-md border border-white/10 bg-slate-900/65 px-3 py-2 text-left sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <FileSearch className="size-4 text-emerald-200" />
             <p className="text-sm font-medium text-white">
-              Job Intelligence Snapshot
+              Snapshot de inteligencia da vaga
             </p>
           </div>
           <p className="text-xs text-slate-500">
-            Parsed from posting and private profile
+            Extraido da vaga e do perfil privado
           </p>
         </div>
         <div className="relative grid gap-2 sm:grid-cols-2 lg:grid-cols-7">

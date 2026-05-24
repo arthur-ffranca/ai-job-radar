@@ -12,23 +12,23 @@ export function buildCareerGaps(
   }> = job.profileGaps.map((gap) => ({
     title: `${gap} evidence`,
     severity: "Medium",
-    recommendation: `Add a concrete example showing ${gap.toLowerCase()} experience if it appears in your background.`,
+    recommendation: `Inclua um exemplo concreto mostrando experiencia com ${gap.toLowerCase()}, se isso existir na sua trajetoria.`,
   }));
 
   if (profile.limited) {
     gaps.unshift({
-      title: "Limited CV evidence",
+      title: "Evidencia limitada no CV",
       severity: "High",
       recommendation:
-        "Upload a readable resume or paste resume text so AI Job Radar can compare real experience against this target role.",
+        "Envie um CV legivel ou cole o texto do curriculo para o AI Job Radar comparar sua experiencia real com este cargo-alvo.",
     });
   }
 
   if (request.avoidKeywords.length) {
     gaps.push({
-      title: "Avoid keyword filter",
+      title: "Filtro de palavras a evitar",
       severity: "Low",
-      recommendation: `Review postings for avoided terms: ${request.avoidKeywords.join(", ")}.`,
+      recommendation: `Revise vagas que contenham termos evitados: ${request.avoidKeywords.join(", ")}.`,
     });
   }
 
@@ -43,14 +43,14 @@ export function optimizeResumeDraft(
   const strongestSignals = [...profile.skills, ...profile.tools].slice(0, 5);
 
   return [
-    `Optimized resume direction for ${request.targetRole}:`,
+    `Direcao otimizada de CV para ${request.targetRole}:`,
     strongestSignals.length
-      ? `Lead with evidence around ${strongestSignals.join(", ")} because those signals appear in the uploaded profile and/or target posting.`
-      : "Lead with measurable achievements from the uploaded CV before adding role-specific language.",
-    `Mirror the posting language for ${job.requiredSkills.join(", ")} only where it is truthful to the CV.`,
+      ? `Abra com evidencias sobre ${strongestSignals.join(", ")} porque esses sinais aparecem no perfil enviado e/ou na vaga-alvo.`
+      : "Abra com conquistas mensuraveis do CV enviado antes de adicionar linguagem especifica do cargo.",
+    `Espelhe a linguagem da vaga para ${job.requiredSkills.join(", ")} apenas quando isso for verdadeiro no CV.`,
     request.jobDescription
-      ? "Because a job posting was provided, prioritize the exact requirements and language from that vacancy before broader market keywords."
-      : "No specific job posting was provided, so this rewrite uses role-level market intelligence and the selected target profile.",
-    "Do not add unsupported tools, industries, or responsibilities.",
+      ? "Como uma vaga especifica foi informada, priorize os requisitos e a linguagem dessa oportunidade antes de palavras mais gerais do mercado."
+      : "Como nenhuma vaga especifica foi informada, esta reescrita usa inteligencia de mercado do cargo e o perfil-alvo selecionado.",
+    "Nao adicione ferramentas, industrias ou responsabilidades que nao estejam sustentadas pelo CV.",
   ].join(" ");
 }

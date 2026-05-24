@@ -37,7 +37,7 @@ export function BetaFeedbackCard() {
   }
 
   return (
-    <Card className="border-sky-300/20 bg-slate-950/82 shadow-panel backdrop-blur">
+    <Card className="border-sky-300/20 bg-slate-900/82 shadow-panel backdrop-blur">
       <CardHeader className="p-5">
         <div className="flex items-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-md border border-sky-300/20 bg-sky-300/10 text-sky-100">
@@ -88,7 +88,7 @@ export function BetaFeedbackCard() {
                 value={comment}
                 onChange={(event) => setComment(event.target.value)}
                 placeholder="Ex.: gostei da comparação por cargo, mas queria sugestões mais diretas para o resumo profissional."
-                className="min-h-28 w-full resize-y rounded-md border border-white/10 bg-slate-950/55 px-3 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-ring"
+                className="min-h-28 w-full resize-y rounded-md border border-white/10 bg-slate-900/65 px-3 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-ring"
               />
             </label>
 
@@ -100,7 +100,7 @@ export function BetaFeedbackCard() {
                 value={useCase}
                 onChange={(event) => setUseCase(event.target.value)}
                 placeholder="Ex.: transição de carreira, recolocação, promoção, vaga internacional"
-                className="h-11 w-full rounded-md border border-white/10 bg-slate-950/55 px-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-ring"
+                className="h-11 w-full rounded-md border border-white/10 bg-slate-900/65 px-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-ring"
               />
             </label>
 

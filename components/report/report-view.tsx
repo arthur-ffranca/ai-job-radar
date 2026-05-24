@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -27,17 +27,6 @@ import { GlobalMarketIntelligence } from "@/components/report/global-market-inte
 import { readStoredDemoReport } from "@/lib/job-radar-client";
 import type { DemoReportRequest, JobRadarReport, RoleTargetAnalysis } from "@/lib/job-radar-types";
 
-function downloadTextFile(filename: string, contents: string) {
-  const blob = new Blob([contents], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
 function downloadHtmlFile(filename: string, contents: string) {
   const blob = new Blob([contents], { type: "text/html;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -49,8 +38,68 @@ function downloadHtmlFile(filename: string, contents: string) {
   URL.revokeObjectURL(url);
 }
 
+function openPrintablePdf(contents: string) {
+  const printWindow = window.open("", "_blank", "noopener,noreferrer");
+
+  if (!printWindow) {
+    downloadHtmlFile("ai-job-radar-relatorio.html", contents);
+    return;
+  }
+
+  printWindow.document.open();
+  printWindow.document.write(contents);
+  printWindow.document.close();
+  printWindow.focus();
+  window.setTimeout(() => {
+    printWindow.print();
+  }, 450);
+}
+
 function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "role";
+}
+
+function workModelLabel(value: string) {
+  const labels: Record<string, string> = {
+    any: "Qualquer",
+    remote: "Remoto",
+    hybrid: "Hibrido",
+    onsite: "Presencial",
+  };
+
+  return labels[value] || value;
+}
+
+function seniorityLabel(value: string) {
+  const labels: Record<string, string> = {
+    Any: "Qualquer",
+    Junior: "Junior",
+    "Mid-level": "Pleno",
+    Senior: "Senior",
+    Lead: "Lideranca",
+  };
+
+  return labels[value] || value;
+}
+
+function demandLabel(value: string) {
+  const labels: Record<string, string> = {
+    Core: "Essencial",
+    Important: "Importante",
+    Emerging: "Emergente",
+  };
+
+  return labels[value] || value;
+}
+
+function severityLabel(value: string) {
+  const labels: Record<string, string> = {
+    High: "Alta",
+    Medium: "Media",
+    Low: "Baixa",
+  };
+
+  return labels[value] || value;
 }
 
 function escapeHtml(value: string) {
@@ -65,29 +114,7 @@ function escapeHtml(value: string) {
 function listItems(values: string[]) {
   return values.length
     ? values.map((value) => `<li>${escapeHtml(value)}</li>`).join("")
-    : "<li>Not detected</li>";
-}
-
-function roleReportText(report: JobRadarReport, analysis: RoleTargetAnalysis) {
-  return [
-    `Relatorio por cargo AI Job Radar: ${analysis.targetRole}`,
-    `Gerado em: ${new Date(report.generatedAt).toLocaleString()}`,
-    `Resume: ${report.request.resumeName}`,
-    `Match score: ${analysis.matchScore}`,
-    `Fit signal: ${analysis.fitSignal}`,
-    "",
-    analysis.reportSummary,
-    "",
-    "Oportunidades priorizadas:",
-    ...analysis.rankedOpportunities.map(
-      (job) => `- ${job.company}: ${job.matchScore} match (${job.requiredSkills.join(", ")})`
-    ),
-    "",
-    "Gaps de carreira:",
-    ...analysis.careerGaps.map(
-      (gap) => `- ${gap.title} (${gap.severity}): ${gap.recommendation}`
-    ),
-  ].join("\n");
+    : "<li>Nao detectado</li>";
 }
 
 function resumeRewriteBlocks(report: JobRadarReport, analysis: RoleTargetAnalysis) {
@@ -129,10 +156,189 @@ function resumeRewriteBlocks(report: JobRadarReport, analysis: RoleTargetAnalysi
   };
 }
 
+function resumeBeforeAfterHtml(report: JobRadarReport, analysis: RoleTargetAnalysis) {
+  const profile = report.parsedProfile;
+  const rewrite = resumeRewriteBlocks(report, analysis);
+  const strongestSignals = [
+    ...profile.tools,
+    ...profile.technicalSkills,
+    ...profile.businessSkills,
+    ...profile.keywords,
+  ].filter(Boolean).slice(0, 12);
+  const topJob = analysis.rankedOpportunities[0];
+  const requiredSkills = topJob?.requiredSkills || [];
+  const gaps = analysis.careerGaps.slice(0, 4);
+  const generatedAt = new Date(report.generatedAt).toLocaleString("pt-BR");
+  const candidateName = profile.name || "Candidato";
+  const currentRole = profile.currentRole || "Cargo atual nao detectado";
+  const currentCompany = profile.currentCompany || "Empresa atual nao detectada";
+
+  return `<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Job Radar - CV De-Para - ${escapeHtml(candidateName)}</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --ink: #0f172a;
+      --muted: #475569;
+      --soft: #64748b;
+      --line: #dbe3ef;
+      --panel: #ffffff;
+      --sky: #0284c7;
+      --emerald: #059669;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main { max-width: 1040px; margin: 0 auto; padding: 42px 28px 64px; }
+    .hero {
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(2,132,199,0.12), transparent 34%),
+        radial-gradient(circle at 92% 10%, rgba(5,150,105,0.10), transparent 32%),
+        #fff;
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(2,132,199,0.22);
+      background: rgba(2,132,199,0.08);
+      color: #075985;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 0; font-size: 38px; line-height: 1.02; letter-spacing: -0.01em; }
+    h2 { margin: 0 0 14px; font-size: 21px; }
+    h3 { margin: 0; font-size: 16px; }
+    p { margin: 0; color: var(--muted); }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .pill { border: 1px solid var(--line); background: #f8fafc; border-radius: 8px; padding: 7px 10px; font-size: 12px; color: #334155; }
+    section { margin-top: 20px; }
+    .grid { display: grid; gap: 14px; }
+    .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); padding: 18px; }
+    .label { color: var(--soft); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+    .score { font-size: 48px; line-height: 1; color: var(--emerald); font-weight: 850; }
+    .depara { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .before { border-color: #cbd5e1; background: #f8fafc; }
+    .after { border-color: rgba(5,150,105,0.28); background: linear-gradient(180deg, rgba(5,150,105,0.08), #ffffff); }
+    ul { margin: 10px 0 0; padding-left: 18px; color: #334155; }
+    li { margin: 6px 0; }
+    .tag-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+    .tag { border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 7px; padding: 5px 8px; font-size: 12px; color: #334155; }
+    .print-note { margin-top: 18px; font-size: 12px; color: var(--soft); }
+    @media print {
+      body { background: white; }
+      main { padding: 0; max-width: none; }
+      .hero, .card { box-shadow: none; break-inside: avoid; }
+      .print-note { display: none; }
+    }
+    @media (max-width: 760px) {
+      main { padding: 24px 14px 42px; }
+      .two, .three, .depara { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="hero">
+      <span class="badge">AI Job Radar - CV De-Para</span>
+      <h1>${escapeHtml(candidateName)}: revisao de CV para ${escapeHtml(analysis.targetRole)}.</h1>
+      <p style="margin-top:14px; max-width:760px;">Este documento mostra como reposicionar o CV para o cargo-alvo sem inventar experiencias. Use o comando de impressao do navegador e escolha "Salvar como PDF".</p>
+      <div class="meta">
+        <span class="pill">Gerado em: ${escapeHtml(generatedAt)}</span>
+        <span class="pill">CV: ${escapeHtml(report.request.resumeName)}</span>
+        <span class="pill">Score: ${analysis.matchScore}</span>
+        <span class="pill">Sinal: ${escapeHtml(analysis.fitSignal)}</span>
+      </div>
+    </div>
+
+    <section class="grid three">
+      <div class="card">
+        <p class="label">Perfil atual</p>
+        <h3>${escapeHtml(currentRole)}</h3>
+        <p>${escapeHtml(currentCompany)}</p>
+      </div>
+      <div class="card">
+        <p class="label">Cargo-alvo</p>
+        <h3>${escapeHtml(analysis.targetRole)}</h3>
+        <p>${escapeHtml(report.request.desiredIndustry || "Industria nao informada")}</p>
+      </div>
+      <div class="card">
+        <p class="label">Match</p>
+        <div class="score">${analysis.matchScore}</div>
+      </div>
+    </section>
+
+    <section class="depara">
+      <div class="card before">
+        <p class="label">DE - posicionamento atual</p>
+        <h2>${escapeHtml(rewrite.original)}</h2>
+        <p>O CV atual pode estar correto, mas ainda nao deixa a proposta de valor suficientemente orientada ao cargo selecionado.</p>
+      </div>
+      <div class="card after">
+        <p class="label">PARA - posicionamento recomendado</p>
+        <h2>${escapeHtml(rewrite.optimized)}</h2>
+        <p>${escapeHtml(rewrite.why)}</p>
+      </div>
+    </section>
+
+    <section class="grid two">
+      <div class="card">
+        <h2>Movimentos recomendados no CV</h2>
+        <ul>${rewrite.bullets.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      </div>
+      <div class="card">
+        <h2>Palavras e evidencias para reforcar</h2>
+        <div class="tag-wrap">
+          ${[...requiredSkills, ...strongestSignals].slice(0, 18).map((item) => `<span class="tag">${escapeHtml(item)}</span>`).join("") || `<span class="tag">Nao detectado</span>`}
+        </div>
+      </div>
+    </section>
+
+    <section class="grid two">
+      <div class="card">
+        <h2>Gaps identificados</h2>
+        <ul>${gaps.length ? gaps.map((gap) => `<li><strong>${escapeHtml(gap.title)}</strong>: ${escapeHtml(gap.recommendation)}</li>`).join("") : "<li>Nenhum gap critico detectado nesta analise demonstrativa.</li>"}</ul>
+      </div>
+      <div class="card">
+        <h2>Resumo otimizado</h2>
+        <p>${escapeHtml(analysis.optimizedResume)}</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Oportunidades priorizadas para este cargo</h2>
+      <ul>
+        ${analysis.rankedOpportunities.slice(0, 5).map((job) => `<li><strong>${escapeHtml(job.company)}</strong> - ${escapeHtml(job.role)} - ${job.matchScore} de match - ${escapeHtml(job.requiredSkills.join(", "))}</li>`).join("")}
+      </ul>
+    </section>
+
+    <p class="print-note">Dica: na janela de impressao, escolha "Salvar como PDF" para gerar o arquivo final.</p>
+  </main>
+</body>
+</html>`;
+}
+
 function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]) {
   const profile = report.parsedProfile;
   const candidateName = profile.name || "Candidate";
-  const headline = profile.headline || profile.professionalHeadline || profile.currentRole || "Career profile";
+  const headline = profile.headline || profile.professionalHeadline || profile.currentRole || "Perfil de carreira";
   const strongestRole = [...roleAnalyses].sort((a, b) => b.matchScore - a.matchScore)[0];
   const generatedAt = new Date(report.generatedAt).toLocaleString();
   const profileTools = profile.tools.slice(0, 14);
@@ -258,30 +464,30 @@ function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]
 </head>
 <body>
   <main>
-    <span class="badge">AI Job Radar Insights Export</span>
+    <span class="badge">Exportacao de insights AI Job Radar</span>
     <h1>${escapeHtml(candidateName)} career intelligence snapshot.</h1>
     <p class="lead">${escapeHtml(headline)} analyzed across ${roleAnalyses.length} target role${roleAnalyses.length === 1 ? "" : "s"}. This export is personalized from the uploaded CV, extracted profile, selected role strategy, and AI Job Radar fit logic.</p>
     <div class="meta">
-      <span class="pill">Generated: ${escapeHtml(generatedAt)}</span>
-      <span class="pill">Resume: ${escapeHtml(report.request.resumeName)}</span>
-      <span class="pill">Strongest path: ${escapeHtml(strongestRole?.targetRole || report.snapshot.targetRole)}</span>
+      <span class="pill">Gerado em: ${escapeHtml(generatedAt)}</span>
+      <span class="pill">CV: ${escapeHtml(report.request.resumeName)}</span>
+      <span class="pill">Caminho mais forte: ${escapeHtml(strongestRole?.targetRole || report.snapshot.targetRole)}</span>
     </div>
 
     <section class="grid three">
       <div class="card">
         <p class="muted-label">Current role</p>
-        <h3>${escapeHtml(profile.currentRole || "Not detected")}</h3>
-        <p>${escapeHtml(profile.currentCompany || "Company not detected")}</p>
+        <h3>${escapeHtml(profile.currentRole || "Nao detectado")}</h3>
+        <p>${escapeHtml(profile.currentCompany || "Empresa nao detectada")}</p>
       </div>
       <div class="card">
-        <p class="muted-label">Seniority signal</p>
-        <h3>${escapeHtml([profile.seniorityLevel, profile.seniorityConfidence].filter(Boolean).join(" - ") || "Not detected")}</h3>
+        <p class="muted-label">Sinal de senioridade</p>
+        <h3>${escapeHtml([seniorityLabel(profile.seniorityLevel), profile.seniorityConfidence].filter(Boolean).join(" - ") || "Nao detectado")}</h3>
         <p>Inferred only from CV titles, dates, and context.</p>
       </div>
       <div class="card">
         <p class="muted-label">Best match</p>
-        <h3>${escapeHtml(strongestRole?.targetRole || "Not available")}</h3>
-        <p>${strongestRole ? `${strongestRole.matchScore} match - ${escapeHtml(strongestRole.fitSignal)}` : "No role analysis available"}</p>
+        <h3>${escapeHtml(strongestRole?.targetRole || "Nao disponivel")}</h3>
+        <p>${strongestRole ? `${strongestRole.matchScore} match - ${escapeHtml(strongestRole.fitSignal)}` : "Nenhuma analise de cargo disponivel"}</p>
       </div>
     </section>
 
@@ -291,13 +497,13 @@ function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]
     </section>
 
     <section>
-      <h2>Target role comparison</h2>
+      <h2>Comparacao por cargo-alvo</h2>
       <div class="grid three">
         ${roleAnalyses.map((analysis, index) => `
           <article class="card role-card">
             <div class="role-top">
               <div>
-                <p class="muted-label">Target role ${index + 1}</p>
+                <p class="muted-label">Cargo-alvo ${index + 1}</p>
                 <h3>${escapeHtml(analysis.targetRole)}</h3>
                 <p>${escapeHtml(analysis.fitSignal)}</p>
               </div>
@@ -307,7 +513,7 @@ function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]
             <p>${escapeHtml(analysis.reportSummary)}</p>
             <div class="opportunity">
               <p class="muted-label">Top opportunity</p>
-              <h3>${escapeHtml(analysis.rankedOpportunities[0]?.company || "Not available")}</h3>
+              <h3>${escapeHtml(analysis.rankedOpportunities[0]?.company || "Nao disponivel")}</h3>
               <p>${escapeHtml(analysis.rankedOpportunities[0]?.role || analysis.targetRole)}</p>
             </div>
           </article>
@@ -317,9 +523,9 @@ function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]
 
     <section class="grid two">
       <div class="card">
-        <h2>Profile strengths detected</h2>
+        <h2>Forcas detectadas no perfil</h2>
         <div class="tag-wrap">
-          ${[...profileTools, ...profileSkills].slice(0, 24).map((item) => `<span class="tag">${escapeHtml(item)}</span>`).join("") || `<span class="tag">Not detected</span>`}
+          ${[...profileTools, ...profileSkills].slice(0, 24).map((item) => `<span class="tag">${escapeHtml(item)}</span>`).join("") || `<span class="tag">Nao detectado</span>`}
         </div>
       </div>
       <div class="card">
@@ -334,7 +540,7 @@ function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]
     </section>
 
     <section>
-      <h2>Role-specific gaps and resume moves</h2>
+      <h2>Gaps e ajustes de CV por cargo</h2>
       <div class="grid">
         ${roleAnalyses.map((analysis) => `
           <article class="card">
@@ -342,12 +548,12 @@ function insightsHtml(report: JobRadarReport, roleAnalyses: RoleTargetAnalysis[]
             <p style="margin-top:8px">${escapeHtml(analysis.optimizedResume)}</p>
             <div class="grid two" style="margin-top:16px">
               <div>
-                <p class="muted-label">Career gaps</p>
-                <ul>${analysis.careerGaps.length ? analysis.careerGaps.map((gap) => `<li><strong>${escapeHtml(gap.title)}</strong> (${escapeHtml(gap.severity)}): ${escapeHtml(gap.recommendation)}</li>`).join("") : "<li>No major gaps detected in this mock analysis.</li>"}</ul>
+                <p class="muted-label">Gaps de carreira</p>
+                <ul>${analysis.careerGaps.length ? analysis.careerGaps.map((gap) => `<li><strong>${escapeHtml(gap.title)}</strong> (${escapeHtml(severityLabel(gap.severity))}): ${escapeHtml(gap.recommendation)}</li>`).join("") : "<li>Nenhum gap relevante detectado nesta analise.</li>"}</ul>
               </div>
               <div>
-                <p class="muted-label">Key skills for this role</p>
-                <ul>${analysis.keySkills.length ? analysis.keySkills.map((skill) => `<li>${escapeHtml(skill.name)} - ${skill.coverage}% coverage</li>`).join("") : "<li>Not detected</li>"}</ul>
+                <p class="muted-label">Competencias-chave para este cargo</p>
+                <ul>${analysis.keySkills.length ? analysis.keySkills.map((skill) => `<li>${escapeHtml(skill.name)} - ${skill.coverage}% de cobertura</li>`).join("") : "<li>Nao detectado</li>"}</ul>
               </div>
             </div>
           </article>
@@ -373,7 +579,7 @@ export function ReportView({
     return readStoredDemoReport();
   });
 
-  const requestedRole = initialRequest?.targetRole || "your target role";
+  const requestedRole = initialRequest?.targetRole || "seu cargo-alvo";
   const roleAnalyses = report?.roleAnalyses?.length
     ? report.roleAnalyses
     : report
@@ -390,58 +596,35 @@ export function ReportView({
       : [];
   const insightsExportHtml = report ? insightsHtml(report, roleAnalyses) : "";
 
-  const reportText = useMemo(() => {
-    if (!report) {
-      return "";
-    }
-
-    return [
-      "AI Job Radar Report",
-      `Generated: ${new Date(report.generatedAt).toLocaleString()}`,
-      `Target role: ${report.snapshot.targetRole}`,
-      `Company: ${report.snapshot.company}`,
-      `Match score: ${report.matchScore}`,
-      `Fit signal: ${report.fitSignal}`,
-      "",
-      report.reportSummary,
-      report.limitedAnalysisNote ? `\n${report.limitedAnalysisNote}` : "",
-      "",
-      "Career gaps:",
-      ...report.careerGaps.map(
-        (gap) => `- ${gap.title} (${gap.severity}): ${gap.recommendation}`
-      ),
-    ].join("\n");
-  }, [report]);
-
   const snapshot = [
     {
       icon: BriefcaseBusiness,
-      label: "Target Role",
+      label: "Cargo-alvo",
       value: report?.snapshot.targetRole || "",
     },
     {
       icon: Building2,
-      label: "Company",
+      label: "Empresa",
       value: report?.snapshot.company || "",
     },
     {
       icon: MapPin,
-      label: "Work Model",
-      value: report ? `${report.snapshot.workModel} - ${report.snapshot.location}` : "",
+      label: "Modelo",
+      value: report ? `${workModelLabel(report.snapshot.workModel)} - ${report.snapshot.location}` : "",
     },
     {
       icon: BadgeDollarSign,
-      label: "Estimated Salary",
+      label: "Salario estimado",
       value: report?.snapshot.estimatedSalary || "",
     },
     {
       icon: Code2,
-      label: "Key Skills",
+      label: "Competencias-chave",
       value: report?.snapshot.keySkills.join(", ") || "",
     },
     {
       icon: SignalHigh,
-      label: "Fit Signal",
+      label: "Sinal de fit",
       value: report?.fitSignal || "",
     },
   ];
@@ -449,33 +632,33 @@ export function ReportView({
   if (!report) {
     return (
       <div className="mx-auto max-w-5xl">
-        <Card className="border-sky-300/20 bg-slate-950/82 shadow-panel backdrop-blur">
+        <Card className="border-sky-300/20 bg-slate-900/82 shadow-panel backdrop-blur">
           <CardContent className="p-8 sm:p-10">
             <div className="flex size-12 items-center justify-center rounded-md border border-sky-300/20 bg-sky-300/10 text-sky-200">
               <Upload className="size-6" />
             </div>
             <Badge variant="pulse" className="mt-6">
-              CV required
+              CV obrigatorio
             </Badge>
             <h1 className="mt-6 max-w-3xl text-4xl font-semibold leading-tight text-white sm:text-5xl">
-              No processed resume was found for this report.
+              Nenhum CV processado foi encontrado para este relatorio.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400">
-              This page was opened for {requestedRole}, but AI Job Radar did not receive a parsed CV from the upload flow. Upload the resume first so the report can use the real profile, skills, education, languages, and experience.
+              Esta pagina foi aberta para {requestedRole}, mas o AI Job Radar nao recebeu um CV lido pelo fluxo de upload. Envie o curriculo primeiro para o relatorio usar perfil, competencias, formacao, idiomas e experiencia reais.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-[auto_auto] sm:justify-start">
               <Button size="lg" onClick={() => router.push("/demo")}>
                 <Upload />
-                Upload CV
+                Enviar CV
               </Button>
               <Button size="lg" variant="outline" onClick={() => router.push("/")}>
-                Back to product
+                Voltar ao produto
               </Button>
             </div>
             <div className="mt-8 rounded-md border border-white/10 bg-white/[0.035] p-4">
-              <p className="text-sm font-medium text-white">Debug note</p>
+              <p className="text-sm font-medium text-white">Nota de debug</p>
               <p className="mt-2 text-sm leading-6 text-slate-400">
-                Reports are now blocked unless a parsed resume exists in browser storage. Query parameters alone no longer create a fake fallback report.
+                Relatorios ficam bloqueados quando nao existe um CV processado no armazenamento do navegador. Parametros da URL sozinhos nao criam mais relatorios falsos.
               </p>
             </div>
           </CardContent>
@@ -505,29 +688,29 @@ export function ReportView({
           <Button
             size="lg"
             onClick={() =>
-              downloadTextFile("ai-job-radar-optimized-resume.txt", report.optimizedResume)
+              openPrintablePdf(resumeBeforeAfterHtml(report, roleAnalyses[0]))
             }
           >
             <Download />
-            Baixar CV principal
+            Gerar PDF do CV
           </Button>
           <Button
             size="lg"
             variant="outline"
             onClick={() =>
-              downloadHtmlFile("ai-job-radar-insights.html", insightsExportHtml)
+              openPrintablePdf(insightsExportHtml)
             }
           >
             <Radar />
-            Baixar insights
+            PDF de insights
           </Button>
           <Button
             size="lg"
             variant="outline"
-            onClick={() => downloadTextFile("ai-job-radar-report.txt", reportText)}
+            onClick={() => openPrintablePdf(insightsExportHtml)}
           >
             <FileText />
-            Baixar relatorio
+            PDF do relatorio
           </Button>
         </div>
       </div>
@@ -544,7 +727,7 @@ export function ReportView({
         </p>
       </div>
 
-      <Card className="mb-6 border-white/10 bg-slate-950/82 shadow-panel backdrop-blur">
+      <Card className="mb-6 border-white/10 bg-slate-900/82 shadow-panel backdrop-blur">
         <CardHeader className="p-5">
           <div className="flex items-center gap-3">
             <BriefcaseBusiness className="size-5 text-sky-200" />
@@ -585,28 +768,22 @@ export function ReportView({
                   type="button"
                   size="sm"
                   onClick={() =>
-                    downloadTextFile(
-                      `ai-job-radar-${slugify(analysis.targetRole)}-optimized-resume.txt`,
-                      analysis.optimizedResume
-                    )
+                    openPrintablePdf(resumeBeforeAfterHtml(report, analysis))
                   }
                 >
                   <Download />
-                  Baixar CV do cargo
+                  Gerar PDF DE-PARA
                 </Button>
                 <Button
                   type="button"
                   size="sm"
                   variant="outline"
                   onClick={() =>
-                    downloadTextFile(
-                      `ai-job-radar-${slugify(analysis.targetRole)}-report.txt`,
-                      roleReportText(report, analysis)
-                    )
+                    openPrintablePdf(resumeBeforeAfterHtml(report, analysis))
                   }
                 >
                   <FileText />
-                  Baixar relatorio do cargo
+                  Abrir versao PDF
                 </Button>
               </div>
             </div>
@@ -614,11 +791,11 @@ export function ReportView({
         </CardContent>
       </Card>
 
-      <Card className="mb-6 border-white/10 bg-slate-950/82 shadow-panel backdrop-blur">
+      <Card className="mb-6 border-white/10 bg-slate-900/82 shadow-panel backdrop-blur">
         <CardHeader className="p-5">
           <div className="flex items-center gap-3">
             <FileText className="size-5 text-emerald-200" />
-            <CardTitle className="text-xl">Estudio de reescrita do CV</CardTitle>
+            <CardTitle className="text-xl">Laboratorio de reescrita do CV</CardTitle>
           </div>
           <p className="text-sm leading-6 text-slate-400">
             Cada bloco mostra como reposicionar o mesmo CV para um cargo ou vaga especifica. A logica nao inventa experiencia: ela muda enfase, ordem das provas e linguagem.
@@ -648,7 +825,7 @@ export function ReportView({
                 </div>
 
                 <div className="mt-4 grid gap-3">
-                  <div className="rounded-md border border-white/10 bg-slate-950/55 p-3">
+                  <div className="rounded-md border border-white/10 bg-slate-900/65 p-3">
                     <p className="text-xs text-slate-500">Posicionamento atual</p>
                     <p className="mt-2 text-sm leading-6 text-slate-300">
                       {rewrite.original}
@@ -685,7 +862,7 @@ export function ReportView({
             <Card className="border-sky-300/20 bg-sky-300/10 shadow-none">
               <CardContent className="p-5">
                 <p className="text-sm font-medium text-white">
-                  {report.relevanceWarning || "Limited profile analysis"}
+                  {report.relevanceWarning || "Analise limitada do perfil"}
                 </p>
                 {report.limitedAnalysisNote ? (
                   <p className="mt-2 text-sm leading-6 text-slate-300">
@@ -700,7 +877,7 @@ export function ReportView({
             <CardHeader className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-emerald-100/75">Match Score</p>
+                  <p className="text-sm text-emerald-100/75">Score de match</p>
                   <CardTitle className="mt-3 text-7xl leading-none text-white">
                     {report.matchScore}
                   </CardTitle>
@@ -723,21 +900,21 @@ export function ReportView({
             </CardContent>
           </Card>
 
-          <Card className="border-white/10 bg-slate-950/82 shadow-none">
+          <Card className="border-white/10 bg-slate-900/82 shadow-none">
             <CardHeader className="p-5">
               <div className="flex items-center gap-3">
                 <Radar className="size-5 text-sky-200" />
-                <CardTitle className="text-xl">Request details</CardTitle>
+                <CardTitle className="text-xl">Detalhes da solicitacao</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-3 p-5 pt-0">
               {[
-                ["Resume", report.request.resumeName],
-                ["Target roles", (report.request.targetRoles?.length ? report.request.targetRoles : [report.request.targetRole]).join(", ")],
-                ["Location", report.request.location || "Any location"],
-                ["Work model", report.request.workModel],
-                ["Seniority", report.request.seniority],
-                ["Industry", report.request.desiredIndustry || "Any industry"],
+                ["CV", report.request.resumeName],
+                ["Cargos-alvo", (report.request.targetRoles?.length ? report.request.targetRoles : [report.request.targetRole]).join(", ")],
+                ["Localidade", report.request.location || "Qualquer localidade"],
+                ["Modelo de trabalho", workModelLabel(report.request.workModel)],
+                ["Senioridade", seniorityLabel(report.request.seniority)],
+                ["Industria", report.request.desiredIndustry || "Qualquer industria"],
                 ["Vaga colada", report.request.jobDescription ? "Usada na analise" : "Nao informada"],
               ].map(([label, value]) => (
                 <div
@@ -751,66 +928,66 @@ export function ReportView({
             </CardContent>
           </Card>
 
-          <Card className="border-white/10 bg-slate-950/82 shadow-none">
+          <Card className="border-white/10 bg-slate-900/82 shadow-none">
             <CardHeader className="p-5">
-              <CardTitle className="text-xl">Parsed CV profile</CardTitle>
+              <CardTitle className="text-xl">Perfil extraido do CV</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 p-5 pt-0">
               <div>
-                <p className="text-xs text-slate-500">Name</p>
+                <p className="text-xs text-slate-500">Nome</p>
                 <p className="mt-1 text-sm font-medium leading-5 text-white">
-                  {report.parsedProfile.name || "Not detected"}
+                  {report.parsedProfile.name || "Nao detectado"}
                 </p>
               </div>
               {[
                 ["Email", report.parsedProfile.email],
-                ["Phone", report.parsedProfile.phone],
-                ["Location", report.parsedProfile.location],
-                ["Current company", report.parsedProfile.currentCompany],
+                ["Telefone", report.parsedProfile.phone],
+                ["Localidade", report.parsedProfile.location],
+                ["Empresa atual", report.parsedProfile.currentCompany],
               ].map(([label, value]) => (
                 <div key={label}>
                   <p className="text-xs text-slate-500">{label}</p>
                   <p className="mt-1 text-sm leading-5 text-slate-300">
-                    {value || "Not detected"}
+                    {value || "Nao detectado"}
                   </p>
                 </div>
               ))}
               <div>
                 <p className="text-xs text-slate-500">Headline</p>
                 <p className="mt-1 text-sm font-medium leading-5 text-white">
-                  {report.parsedProfile.headline || report.parsedProfile.professionalHeadline || "Not detected"}
+                  {report.parsedProfile.headline || report.parsedProfile.professionalHeadline || "Nao detectado"}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-slate-500">Summary</p>
+                <p className="text-xs text-slate-500">Resumo</p>
                 <p className="mt-1 text-sm leading-5 text-slate-300">
-                  {report.parsedProfile.summary || "Not detected"}
+                  {report.parsedProfile.summary || "Nao detectado"}
                 </p>
               </div>
               {[
-                ["Current role", report.parsedProfile.currentRole ? [report.parsedProfile.currentRole] : []],
-                ["Previous roles", report.parsedProfile.previousRoles],
-                ["Industries", report.parsedProfile.industries],
-                ["Tools", report.parsedProfile.tools],
-                ["Technical skills", report.parsedProfile.technicalSkills],
-                ["Business skills", report.parsedProfile.businessSkills],
-                ["Keywords", report.parsedProfile.keywords],
-                ["Target suggestions", report.parsedProfile.targetRoleSuggestions],
-                ["Education", report.parsedProfile.education],
-                ["Certifications", report.parsedProfile.certifications],
-                ["Languages", report.parsedProfile.languages],
-                ["Seniority", [report.parsedProfile.seniorityLevel, report.parsedProfile.seniorityConfidence].filter(Boolean)],
+                ["Cargo atual", report.parsedProfile.currentRole ? [report.parsedProfile.currentRole] : []],
+                ["Cargos anteriores", report.parsedProfile.previousRoles],
+                ["Industrias", report.parsedProfile.industries],
+                ["Ferramentas", report.parsedProfile.tools],
+                ["Competencias tecnicas", report.parsedProfile.technicalSkills],
+                ["Competencias de negocio", report.parsedProfile.businessSkills],
+                ["Palavras-chave", report.parsedProfile.keywords],
+                ["Sugestoes de alvo", report.parsedProfile.targetRoleSuggestions],
+                ["Formacao", report.parsedProfile.education],
+                ["Certificacoes", report.parsedProfile.certifications],
+                ["Idiomas", report.parsedProfile.languages],
+                ["Senioridade", [seniorityLabel(report.parsedProfile.seniorityLevel), report.parsedProfile.seniorityConfidence].filter(Boolean)],
               ].map(([label, values]) => (
                 <div key={label as string}>
                   <p className="text-xs text-slate-500">{label as string}</p>
                   <p className="mt-1 text-sm leading-5 text-slate-300">
-                    {(values as string[]).length ? (values as string[]).join(", ") : "Not detected"}
+                    {(values as string[]).length ? (values as string[]).join(", ") : "Nao detectado"}
                   </p>
                 </div>
               ))}
               {report.parsedProfile.experience.length ? (
                 <div>
-                  <p className="text-xs text-slate-500">Experience</p>
+                  <p className="text-xs text-slate-500">Experiencia</p>
                   <div className="mt-2 space-y-2">
                     {report.parsedProfile.experience.slice(0, 4).map((item) => (
                       <div
@@ -818,7 +995,7 @@ export function ReportView({
                         className="rounded-md border border-white/10 bg-white/[0.035] p-3"
                       >
                         <p className="text-sm font-medium text-white">
-                          {[item.role, item.company].filter(Boolean).join(" at ") || "Experience"}
+                          {[item.role, item.company].filter(Boolean).join(" em ") || "Experiencia"}
                         </p>
                         <p className="mt-1 text-xs leading-5 text-slate-500">
                           {[item.period, item.location].filter(Boolean).join(" - ")}
@@ -838,9 +1015,9 @@ export function ReportView({
         </div>
 
         <div className="space-y-6">
-          <Card className="border-white/10 bg-slate-950/82 shadow-panel backdrop-blur">
+          <Card className="border-white/10 bg-slate-900/82 shadow-panel backdrop-blur">
             <CardHeader className="p-5">
-              <CardTitle className="text-xl">Job Intelligence Snapshot</CardTitle>
+              <CardTitle className="text-xl">Snapshot de inteligencia da vaga</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-2 p-5 pt-0 sm:grid-cols-2 xl:grid-cols-3">
               {snapshot.map(({ icon: Icon, label, value }) => (
@@ -863,13 +1040,13 @@ export function ReportView({
           <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
             <Card className="border-white/10 bg-white/[0.035] shadow-none">
               <CardHeader className="p-5">
-                <CardTitle className="text-xl">Top ranked opportunities</CardTitle>
+                <CardTitle className="text-xl">Oportunidades mais bem ranqueadas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 p-5 pt-0">
                 {report.rankedOpportunities.map((opportunity, index) => (
                   <div
                     key={opportunity.company}
-                    className="rounded-lg border border-white/10 bg-slate-950/55 p-4 transition duration-300 hover:-translate-y-0.5 hover:border-sky-300/25"
+                    className="rounded-lg border border-white/10 bg-slate-900/65 p-4 transition duration-300 hover:-translate-y-0.5 hover:border-sky-300/25"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
@@ -877,7 +1054,7 @@ export function ReportView({
                           {opportunity.company}
                         </p>
                         <p className="mt-1 text-sm text-slate-500">
-                          {opportunity.role} · {opportunity.workModel}
+                          {opportunity.role} - {workModelLabel(opportunity.workModel)}
                         </p>
                       </div>
                       <div className="text-right">
@@ -888,7 +1065,7 @@ export function ReportView({
                       </div>
                     </div>
                     <p className="mt-3 text-sm text-slate-400">
-                      {opportunity.location} · {opportunity.estimatedSalary}
+                      {opportunity.location} - {opportunity.estimatedSalary}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {opportunity.requiredSkills.map((skill) => (
@@ -907,7 +1084,7 @@ export function ReportView({
                     ) : null}
                     {index === 0 ? (
                       <Badge variant="pulse" className="mt-3">
-                        Best fit
+                        Melhor fit
                       </Badge>
                     ) : null}
                   </div>
@@ -917,14 +1094,14 @@ export function ReportView({
 
             <Card className="border-white/10 bg-white/[0.035] shadow-none">
               <CardHeader className="p-5">
-                <CardTitle className="text-xl">Key skills detected</CardTitle>
+                <CardTitle className="text-xl">Competencias-chave detectadas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 p-5 pt-0">
                 {report.keySkills.map((skill) => (
                   <div key={skill.name}>
                     <div className="mb-2 flex items-center justify-between text-sm">
                       <span className="text-slate-300">{skill.name}</span>
-                      <span className="text-slate-500">{skill.demand}</span>
+                      <span className="text-slate-500">{demandLabel(skill.demand)}</span>
                     </div>
                     <div className="h-2 rounded-full bg-white/10">
                       <motion.div
@@ -940,9 +1117,9 @@ export function ReportView({
             </Card>
           </div>
 
-          <Card className="border-white/10 bg-slate-950/82 shadow-none">
+          <Card className="border-white/10 bg-slate-900/82 shadow-none">
             <CardHeader className="p-5">
-              <CardTitle className="text-xl">Career gaps</CardTitle>
+              <CardTitle className="text-xl">Gaps de carreira</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3 p-5 pt-0 md:grid-cols-3">
               {report.careerGaps.map((gap) => (
@@ -953,7 +1130,7 @@ export function ReportView({
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <ShieldAlert className="size-5 text-sky-200" />
                     <span className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-xs text-slate-400">
-                      {gap.severity}
+                      {severityLabel(gap.severity)}
                     </span>
                   </div>
                   <p className="font-medium text-white">{gap.title}</p>
@@ -973,3 +1150,4 @@ export function ReportView({
     </div>
   );
 }
+

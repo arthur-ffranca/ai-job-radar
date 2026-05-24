@@ -12,8 +12,8 @@ export function UploadReportFlow() {
       <CardHeader className="p-5">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-slate-500">Report studio</p>
-            <CardTitle className="mt-2 text-xl leading-7">Analyze profile flow</CardTitle>
+            <p className="text-sm text-slate-500">Estudio de relatorio</p>
+            <CardTitle className="mt-2 text-xl leading-7">Fluxo de analise do perfil</CardTitle>
           </div>
           <div className="flex size-10 items-center justify-center rounded-md border border-sky-300/20 bg-sky-300/10 text-sky-200">
             <FileSearch className="size-5" />
@@ -24,27 +24,27 @@ export function UploadReportFlow() {
         <label className="block">
           <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
             <Upload className="size-4 text-emerald-200" />
-            Resume file
+            Arquivo do CV
           </span>
-          <div className="flex h-28 items-center justify-center rounded-lg border border-dashed border-white/15 bg-slate-950/55 px-4 text-center text-sm leading-6 text-slate-500">
-            Drop a PDF or DOCX resume to begin profile analysis
+          <div className="flex h-28 items-center justify-center rounded-lg border border-dashed border-white/15 bg-slate-900/65 px-4 text-center text-sm leading-6 text-slate-500">
+            Envie um PDF ou DOCX para iniciar a analise do perfil
           </div>
         </label>
 
         <label className="block">
           <span className="mb-2 flex items-center gap-2 text-sm text-slate-300">
             <Link2 className="size-4 text-sky-200" />
-            Job posting URL
+            Vaga ou cargo-alvo
           </span>
           <Input
             readOnly
             value="{target_role} · {location}"
-            className="h-11 border-white/10 bg-slate-950/55 text-slate-400"
+            className="h-11 border-white/10 bg-slate-900/65 text-slate-400"
           />
         </label>
 
         <Button className="h-11 w-full" type="button">
-          Preview analysis
+          Previsualizar analise
           <ArrowRight />
         </Button>
       </CardContent>

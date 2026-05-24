@@ -84,7 +84,7 @@ export function parseProfileFromResume(request: DemoReportRequest): ParsedProfil
     targetRoleSuggestions: request.targetRole ? [request.targetRole] : [],
     limited: !hasUsableText,
     sourceNote: hasUsableText
-      ? "Resume text was parsed locally with limited fallback extraction. Upload parsing uses the backend universal parser."
-      : "No readable CV text was available, so the report uses target role and form inputs only.",
+      ? "O texto do CV foi lido localmente com extracao limitada de contingencia. O upload usa o parser universal do backend."
+      : "Nenhum texto legivel de CV estava disponivel, entao o relatorio usa apenas o cargo-alvo e os campos do formulario.",
   };
 }

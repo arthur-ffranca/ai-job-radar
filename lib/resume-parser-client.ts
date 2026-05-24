@@ -167,7 +167,7 @@ export function mapParsedProfile(response: ParseResumeResponse): ParsedProfile {
     keywords: backendKeywords,
     targetRoleSuggestions: backendSuggestions,
     limited: false,
-    sourceNote: "Resume parsed by the universal backend extraction endpoint.",
+    sourceNote: "Curriculo lido pelo endpoint universal de extracao do backend.",
   };
 }
 
@@ -176,7 +176,7 @@ export async function parseResumeFile(file: File): Promise<{
   parsedProfile: ParsedProfile;
 }> {
   if (!file) {
-    throw new Error("Select a CV before parsing.");
+    throw new Error("Selecione um CV antes da leitura.");
   }
 
   if (!/\.(pdf|docx)$/i.test(file.name)) {
@@ -228,7 +228,7 @@ export async function parseResumeFile(file: File): Promise<{
 
   if (!response) {
     throw new ParseResumeDebugError(
-      "Resume parser service is unavailable. Try again in a few seconds while the server wakes up.",
+      "O servico de leitura de CV esta indisponivel. Tente novamente em alguns segundos enquanto o servidor inicializa.",
       lastError
     );
   }
@@ -251,7 +251,7 @@ export async function parseResumeFile(file: File): Promise<{
   }
 
   if (!body.raw_text.trim()) {
-    throw new ParseResumeDebugError("No text extracted", body);
+    throw new ParseResumeDebugError("Nenhum texto foi extraido", body);
   }
 
   const parsedProfile = mapParsedProfile(body);
