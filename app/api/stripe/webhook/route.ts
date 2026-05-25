@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
+import { ensureClerkUserByEmail } from "@/lib/clerk-provisioning";
 import { cancelSubscriptionByStripeId, upsertSubscription } from "@/lib/db";
 import { getStripeClient, getStripeWebhookSecret } from "@/lib/stripe";
 
@@ -35,10 +36,17 @@ export async function POST(request: Request) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const subscriptionId = String(session.subscription || "");
+      const checkoutEmail = session.customer_details?.email || session.customer_email || "";
+      let provisionedUserId = session.metadata?.user_id || "";
+
+      if (!provisionedUserId && checkoutEmail) {
+        provisionedUserId = await ensureClerkUserByEmail(checkoutEmail);
+      }
+
       if (subscriptionId) {
         const subscription = await getStripeClient().subscriptions.retrieve(subscriptionId) as Stripe.Subscription;
         await upsertSubscription({
-          userId: subscription.metadata.user_id || session.metadata?.user_id || null,
+          userId: subscription.metadata.user_id || provisionedUserId || null,
           anonId: subscription.metadata.anon_id || session.metadata?.anon_id || null,
           stripeCustomerId: String(subscription.customer),
           stripeSubscriptionId: subscription.id,

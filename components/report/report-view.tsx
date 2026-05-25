@@ -614,6 +614,7 @@ export function ReportView({
         }]
       : [];
   const insightsExportHtml = report ? insightsHtml(report, roleAnalyses) : "";
+  const isPro = report?.plan === "pro";
 
   useEffect(() => {
     if (!report) {
@@ -744,6 +745,7 @@ export function ReportView({
         <div className="grid gap-3 sm:grid-cols-3">
           <Button
             size="lg"
+            disabled={!isPro}
             onClick={() => {
               trackEvent("download_report_pdf", {
                 type: "de_para",
@@ -759,6 +761,7 @@ export function ReportView({
           <Button
             size="lg"
             variant="outline"
+            disabled={!isPro}
             onClick={() => {
               trackEvent("download_report_pdf", {
                 type: "insights",
@@ -774,6 +777,7 @@ export function ReportView({
           <Button
             size="lg"
             variant="outline"
+            disabled={!isPro}
             onClick={() => {
               trackEvent("download_report_pdf", {
                 type: "full_report",
@@ -1104,10 +1108,17 @@ export function ReportView({
           </p>
         </CardHeader>
         <CardContent className="p-5 pt-0">
+          {!isPro ? (
+            <div className="mb-4 rounded-md border border-sky-300/25 bg-sky-300/10 p-4 text-sm text-sky-100">
+              Recurso Pro: CV adaptado, PDF e histórico completo.
+              <a href="/pricing" className="ml-2 underline">Upgrade to Pro</a>
+            </div>
+          ) : null}
           <div className="mb-4 flex flex-wrap gap-2">
             <Button
               type="button"
               size="sm"
+              disabled={!isPro}
               onClick={() => copyText("cv", report.adaptedCvDraft)}
             >
               <Clipboard />
@@ -1117,6 +1128,7 @@ export function ReportView({
               type="button"
               size="sm"
               variant="outline"
+              disabled={!isPro}
               onClick={() => {
                 trackEvent("download_cv_markdown", {
                   analysisId: report.analysisId,
@@ -1169,7 +1181,9 @@ export function ReportView({
                 ),
               }}
             >
-              {report.adaptedCvDraft || "Nenhum rascunho adaptado foi gerado para esta analise."}
+              {isPro
+                ? report.adaptedCvDraft || "Nenhum rascunho adaptado foi gerado para esta analise."
+                : "Faça upgrade para liberar o CV adaptado neste relatório."}
             </ReactMarkdown>
           </div>
         </CardContent>

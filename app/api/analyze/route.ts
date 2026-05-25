@@ -144,6 +144,15 @@ export async function POST(request: Request) {
 
     const report = generateReport(reportRequest);
 
+    if (access.plan === "free") {
+      report.adaptedCvDraft = "";
+      report.cvChanges = [];
+      report.roleAnalyses = report.roleAnalyses.map((roleAnalysis) => ({
+        ...roleAnalysis,
+        adaptedCvDraft: "",
+      }));
+    }
+
     await registerAnalysisUsage({
       userId: userId || null,
       anonId: anonId || null,

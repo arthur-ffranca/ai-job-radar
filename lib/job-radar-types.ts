@@ -4,6 +4,7 @@ export type WorkModel = "any" | "remote" | "hybrid" | "onsite";
 
 export type DemoReportRequest = {
   analysisId?: string;
+  anonId?: string;
   resumeName: string;
   resumeText?: string;
   parsedProfile?: ParsedProfile | null;
@@ -259,6 +260,7 @@ export type JobRadarReport = {
   learningRecommendations: LearningRecommendation[];
   reportSummary: string;
   roleAnalyses: RoleTargetAnalysis[];
+  plan?: "free" | "pro";
 };
 
 export type RoleTargetAnalysis = {
