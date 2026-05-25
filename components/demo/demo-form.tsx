@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { analyzeDemoReport, clearStoredDemoReport } from "@/lib/job-radar-client";
 import type { ParsedProfile, Seniority, WorkModel } from "@/lib/job-radar-types";
+import { getOrCreateAnonId } from "@/lib/client-id";
 import { ParseResumeDebugError, parseResumeFile } from "@/lib/resume-parser-client";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
@@ -203,6 +204,7 @@ export function DemoForm() {
 
     const payload = {
       analysisId,
+      anonId: getOrCreateAnonId(),
       resumeName: formData.cvFileName || "Nenhum CV enviado",
       resumeText: formData.rawCvText,
       parsedProfile: formData.parsedProfile,

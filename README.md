@@ -70,6 +70,30 @@ With this, you can monitor:
 - download and copy usage
 - failure points in upload and analysis
 
+## Billing (Stripe + Neon/Postgres)
+
+Pricing and subscriptions are available with:
+
+- `GET /pricing`
+- `POST /api/stripe/create-checkout`
+- `POST /api/stripe/webhook`
+
+Run SQL migration in Neon:
+
+```sql
+\i backend/sql/billing.sql
+```
+
+Required env vars:
+
+```env
+DATABASE_URL=postgres://...
+STRIPE_SECRET_KEY=sk_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRO_PRICE_ID=price_...
+NEXT_PUBLIC_APP_URL=https://aijobradar.com.br
+```
+
 ## Project Structure
 
 ```text

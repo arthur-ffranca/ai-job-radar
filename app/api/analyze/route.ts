@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
+import { checkAnalysisAccess, registerAnalysisUsage } from "@/lib/billing";
 import { generateReport } from "@/lib/report-generator";
 import type { DemoReportRequest, ParsedProfile, Seniority, WorkModel } from "@/lib/job-radar-types";
 
@@ -76,6 +78,8 @@ export async function POST(request: Request) {
     const targetRoles = parseJsonArray(formData.get("targetRoles"));
     const mustHaveKeywords = parseJsonArray(formData.get("mustHaveKeywords"));
     const avoidKeywords = parseJsonArray(formData.get("avoidKeywords"));
+    const anonId = getText(formData, "anonId");
+    const { userId } = await auth();
 
     if (!analysisId) {
       return jsonResponse({ error: "analysisId ausente." }, 400);
@@ -101,6 +105,27 @@ export async function POST(request: Request) {
       );
     }
 
+    const access = await checkAnalysisAccess({
+      userId: userId || null,
+      anonId: anonId || null,
+    });
+
+    if (!access.allowed) {
+      return jsonResponse(
+        {
+          analysisId,
+          error: access.reason,
+          access: {
+            plan: "free",
+            analysesUsed: access.analysesUsed,
+            remaining: access.remaining,
+            upgradeUrl: "/pricing",
+          },
+        },
+        402
+      );
+    }
+
     const reportRequest: DemoReportRequest = {
       analysisId,
       resumeName: resumeName || "CV enviado",
@@ -119,10 +144,16 @@ export async function POST(request: Request) {
 
     const report = generateReport(reportRequest);
 
+    await registerAnalysisUsage({
+      userId: userId || null,
+      anonId: anonId || null,
+    });
+
     return jsonResponse({
       ...report,
       id: analysisId,
       analysisId,
+      plan: access.plan,
     });
   } catch (error) {
     console.error("[AI Job Radar] /api/analyze failed", error);

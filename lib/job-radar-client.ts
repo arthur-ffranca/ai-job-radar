@@ -2,6 +2,7 @@ import type { DemoReportRequest, JobRadarReport } from "@/lib/job-radar-types";
 
 export type AnalyzeReportRequest = DemoReportRequest & {
   cvFile?: File | null;
+  anonId?: string;
 };
 
 let currentAnalysisReport: JobRadarReport | null = null;
@@ -29,6 +30,7 @@ export async function analyzeDemoReport(
 
   const formData = new FormData();
   formData.append("analysisId", analysisId);
+  formData.append("anonId", request.anonId || "");
   formData.append("resumeName", request.resumeName);
   formData.append("resumeText", request.resumeText || "");
   formData.append("parsedProfile", safeJson(request.parsedProfile));

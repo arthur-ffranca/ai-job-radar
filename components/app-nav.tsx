@@ -30,6 +30,9 @@ export function AppNav() {
           </Link>
         </div>
         <div className="flex items-center gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link href="/pricing">Upgrade to Pro</Link>
+          </Button>
           <Button asChild size="sm" variant="ghost">
             <Link href="/sign-in">Entrar</Link>
           </Button>
