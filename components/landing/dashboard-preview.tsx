@@ -15,64 +15,64 @@ import {
 
 import { cn } from "@/lib/utils";
 
-const skills = ["{required_skill_1}", "{required_skill_2}", "{required_skill_3}", "{required_skill_4}"];
+const skills = ["SQL", "Python", "Spark", "Power BI"];
 
 const targetProfile = [
-  ["Empresa", "{company}"],
-  ["Cargo", "{target_role}"],
-  ["Localidade", "{location}"],
-  ["Modelo", "{work_model}"],
-  ["Salario", "{salary_if_available}"],
+  ["Empresa", "Nubank"],
+  ["Cargo", "Data Analyst"],
+  ["Localidade", "Sao Paulo, Brasil"],
+  ["Modelo", "Hibrido"],
+  ["Salario", "R$ 12k+"],
 ];
 
 const intelligenceCards = [
   {
     label: "Cobertura de palavras",
-    value: "{coverage}%",
+    value: "86%",
     detail: "Calculada a partir dos requisitos da vaga",
   },
   {
     label: "Fit salarial",
-    value: "{salary_fit}",
+    value: "Alto",
     detail: "Compara salario disponivel com alvo do usuario",
   },
   {
     label: "Gaps do perfil",
-    value: "{gap_count}",
+    value: "3",
     detail: "Evidencias ausentes no CV versus a vaga",
   },
 ];
 
 const opportunities = [
   {
-    company: "{company}",
-    role: "{target_role}",
-    location: "{location}",
-    workModel: "{work_model}",
-    salary: "{salary_if_available}",
+    company: "Nubank",
+    role: "Data Analyst",
+    location: "Sao Paulo, Brasil",
+    workModel: "Hibrido",
+    salary: "R$ 12k+",
     score: 91,
-    gap: "{profile_gap}",
-    skills: ["{skill_1}", "{skill_2}", "{skill_3}"],
+    gap: "Engenharia de dados em producao",
+    skills: ["SQL", "Python", "Power BI"],
   },
   {
-    company: "{ranked_company_2}",
-    role: "{related_role_2}",
-    location: "{location}",
-    workModel: "{work_model}",
-    salary: "{salary_if_available}",
+    company: "Mercado Livre",
+    role: "BI Analyst",
+    location: "Sao Paulo, Brasil",
+    workModel: "Hibrido",
+    salary: "R$ 11k+",
     score: 87,
-    gap: "{profile_gap}",
-    skills: ["{skill_1}", "{skill_2}", "{skill_3}"],
+    gap: "Modelagem analitica avancada",
+    skills: ["SQL", "Python", "Looker"],
   },
   {
-    company: "{ranked_company_3}",
-    role: "{related_role_3}",
-    location: "{location}",
-    workModel: "{work_model}",
-    salary: "{salary_if_available}",
+    company: "iFood",
+    role: "Analytics Analyst",
+    location: "Sao Paulo, Brasil",
+    workModel: "Remoto",
+    salary: "R$ 10k+",
     score: 84,
-    gap: "{profile_gap}",
-    skills: ["{skill_1}", "{skill_2}", "{skill_3}"],
+    gap: "Experimentacao e testes A/B",
+    skills: ["SQL", "Tableau", "Data Storytelling"],
   },
 ];
 

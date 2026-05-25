@@ -16,27 +16,27 @@ const snapshot = [
   {
     icon: BriefcaseBusiness,
     label: "Cargo-alvo",
-    value: "{target_role}",
+    value: "Data Analyst",
   },
   {
     icon: Building2,
     label: "Empresa",
-    value: "{company}",
+    value: "Nubank",
   },
   {
     icon: MapPin,
     label: "Modelo",
-    value: "{work_model}",
+    value: "Hibrido",
   },
   {
     icon: BadgeDollarSign,
     label: "Salario estimado",
-    value: "{salary_if_available}",
+    value: "R$ 12k+",
   },
   {
     icon: Globe2,
     label: "Localidade",
-    value: "{location}",
+    value: "Sao Paulo, Brasil",
   },
   {
     icon: Code2,

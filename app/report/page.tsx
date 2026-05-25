@@ -3,6 +3,9 @@ import { PageBackground } from "@/components/page-background";
 import { ReportView } from "@/components/report/report-view";
 import type { DemoReportRequest, Seniority, WorkModel } from "@/lib/job-radar-types";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -53,7 +56,7 @@ export default async function ReportPage({ searchParams }: PageProps) {
       <PageBackground />
       <AppNav />
       <section className="relative px-5 pb-20 pt-28 sm:px-6 lg:px-8">
-        <ReportView initialRequest={initialRequest} />
+        <ReportView key={initialRequest.analysisId || "report-empty"} initialRequest={initialRequest} />
       </section>
     </main>
   );

@@ -586,12 +586,13 @@ export function ReportView({
   initialRequest?: DemoReportRequest;
 }) {
   const router = useRouter();
+  const expectedAnalysisId = initialRequest?.analysisId;
   const [report] = useState<JobRadarReport | null>(() => {
     if (typeof window === "undefined") {
       return null;
     }
 
-    return readStoredDemoReport(initialRequest?.analysisId);
+    return readStoredDemoReport(expectedAnalysisId);
   });
   const [copiedAction, setCopiedAction] = useState<string>("");
 

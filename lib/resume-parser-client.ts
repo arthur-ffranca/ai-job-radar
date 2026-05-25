@@ -27,6 +27,20 @@ function createResumeFormData(file: File) {
   return formData;
 }
 
+function sanitizeUserMessage(message: string) {
+  const normalized = message.toLowerCase();
+
+  if (normalized.includes("verificando sua sessao") || normalized.includes("verificando sua sessão")) {
+    return "O leitor de CV esta inicializando. Tente novamente em alguns segundos.";
+  }
+
+  if (normalized.includes("unauthorized") || normalized.includes("forbidden")) {
+    return "Nao foi possivel autorizar a leitura do CV no momento. Tente novamente em instantes.";
+  }
+
+  return message;
+}
+
 function normalizeSeniority(value: string): Seniority {
   if (value === "Junior" || value === "Mid-level" || value === "Senior" || value === "Lead") {
     return value;
@@ -201,6 +215,7 @@ export async function parseResumeFile(file: File): Promise<{
       response = await fetch(`${parserUrl}/parse-resume`, {
         method: "POST",
         body: createResumeFormData(file),
+        cache: "no-store",
       });
 
       body = await response.json().catch(() => null);
@@ -234,13 +249,14 @@ export async function parseResumeFile(file: File): Promise<{
   }
 
   if (!response.ok) {
-    const message =
+    const message = sanitizeUserMessage(
       body &&
       typeof body === "object" &&
       "detail" in body &&
       typeof body.detail === "string"
         ? body.detail
-        : "Erro ao ler o CV. O leitor nao aceitou este envio.";
+        : "Erro ao ler o CV. O leitor nao aceitou este envio."
+    );
     throw new ParseResumeDebugError(message, body);
   }
 

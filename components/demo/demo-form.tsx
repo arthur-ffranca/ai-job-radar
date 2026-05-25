@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 
 import { AnalysisLoadingOverlay } from "@/components/demo/analysis-loading-overlay";
-import { useAuthPrompt } from "@/components/auth/auth-prompt-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -102,9 +101,18 @@ function normalizeWorkModel(value: string | null): WorkModel {
   return "any";
 }
 
+function sanitizeFlowMessage(message: string) {
+  const normalized = message.toLowerCase();
+
+  if (normalized.includes("verificando sua sessao") || normalized.includes("verificando sua sessão")) {
+    return "O leitor de CV esta inicializando. Tente novamente em alguns segundos.";
+  }
+
+  return message;
+}
+
 export function DemoForm() {
   const router = useRouter();
-  const { isAuthLoaded, requireAuth } = useAuthPrompt();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const activeAnalysisIdRef = useRef<string | null>(null);
   const activeParseIdRef = useRef<string | null>(null);
@@ -145,19 +153,6 @@ export function DemoForm() {
   }, []);
 
   const handleGenerate = useCallback(async () => {
-    if (!isAuthLoaded) {
-      setFormData((prev) => ({
-        ...prev,
-        uploadStatus: "idle",
-        uploadMessage: "Verificando sua sessao. Tente novamente em instantes.",
-      }));
-      return;
-    }
-
-    if (!requireAuth()) {
-      return;
-    }
-
     if (isLoading || isParsing) {
       return;
     }
@@ -223,7 +218,9 @@ export function DemoForm() {
 
       router.push(`/report?analysisId=${encodeURIComponent(analysisId)}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erro ao gerar a analise.";
+      const message = sanitizeFlowMessage(
+        error instanceof Error ? error.message : "Erro ao gerar a analise."
+      );
       setFormData((prev) => ({
         ...prev,
         uploadStatus: "error",
@@ -234,7 +231,7 @@ export function DemoForm() {
         setIsLoading(false);
       }
     }
-  }, [formData, isAuthLoaded, isLoading, isParsing, requireAuth, router]);
+  }, [formData, isLoading, isParsing, router]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -378,8 +375,9 @@ export function DemoForm() {
         return next;
       });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Erro ao ler o CV.";
+      const message = sanitizeFlowMessage(
+        error instanceof Error ? error.message : "Erro ao ler o CV."
+      );
       const parserDebug = error instanceof ParseResumeDebugError ? error.debugResult : null;
       console.log("[AI Job Radar] parsing failed", {
         message,

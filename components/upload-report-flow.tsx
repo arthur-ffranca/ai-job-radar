@@ -38,7 +38,7 @@ export function UploadReportFlow() {
           </span>
           <Input
             readOnly
-            value="{cargo_alvo} - {localidade}"
+            value="Data Analyst - Sao Paulo, Brasil"
             className="h-11 border-white/10 bg-slate-900/65 text-slate-400"
           />
         </label>
