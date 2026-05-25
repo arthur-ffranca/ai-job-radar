@@ -1,4 +1,5 @@
 import { currentUser } from "@clerk/nextjs/server";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { getInternalMetrics } from "@/lib/db";
@@ -13,7 +14,25 @@ function adminEmails() {
     .filter(Boolean);
 }
 
+async function metricsResponse() {
+  const metrics = await getInternalMetrics();
+  return NextResponse.json(metrics, {
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
+    },
+  });
+}
+
 export async function GET() {
+  const internalToken = process.env.INTERNAL_METRICS_TOKEN || "";
+  const headerToken = (await headers()).get("x-internal-token") || "";
+
+  if (internalToken && headerToken === internalToken) {
+    return metricsResponse();
+  }
+
   const allowedEmails = adminEmails();
   if (!allowedEmails.length) {
     return NextResponse.json({ error: "Admin access is not configured." }, { status: 403 });
@@ -25,12 +44,5 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
-  const metrics = await getInternalMetrics();
-  return NextResponse.json(metrics, {
-    headers: {
-      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-      Pragma: "no-cache",
-      Expires: "0",
-    },
-  });
+  return metricsResponse();
 }

@@ -26,6 +26,8 @@ services:
         sync: false
       - key: ADMIN_EMAILS
         sync: false
+      - key: INTERNAL_METRICS_TOKEN
+        sync: false
 
   - type: web
     name: ai-job-radar-api
