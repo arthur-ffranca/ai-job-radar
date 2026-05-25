@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
@@ -30,6 +30,7 @@ import { ReportFeedbackCard } from "@/components/feedback/report-feedback-card";
 import { GlobalMarketIntelligence } from "@/components/report/global-market-intelligence";
 import { clearStoredDemoReport, readStoredDemoReport } from "@/lib/job-radar-client";
 import type { DemoReportRequest, JobRadarReport, RoleTargetAnalysis } from "@/lib/job-radar-types";
+import { trackEvent } from "@/lib/telemetry";
 
 function downloadHtmlFile(filename: string, contents: string) {
   const blob = new Blob([contents], { type: "text/html;charset=utf-8" });
@@ -614,13 +615,34 @@ export function ReportView({
       : [];
   const insightsExportHtml = report ? insightsHtml(report, roleAnalyses) : "";
 
+  useEffect(() => {
+    if (!report) {
+      return;
+    }
+
+    trackEvent("report_opened", {
+      analysisId: report.analysisId,
+      targetRole: report.request.targetRole,
+      matchScore: report.matchScore,
+    });
+  }, [report]);
+
   async function copyText(label: string, value: string) {
     await navigator.clipboard.writeText(value);
     setCopiedAction(label);
+    trackEvent("copy_action", {
+      action: label,
+      analysisId: report?.analysisId || "",
+      targetRole: report?.request?.targetRole || "",
+    });
     window.setTimeout(() => setCopiedAction(""), 1800);
   }
 
   function deleteAnalysis() {
+    trackEvent("delete_analysis", {
+      analysisId: report?.analysisId || "",
+      targetRole: report?.request?.targetRole || "",
+    });
     clearStoredDemoReport();
     router.push("/demo");
   }
@@ -722,9 +744,14 @@ export function ReportView({
         <div className="grid gap-3 sm:grid-cols-3">
           <Button
             size="lg"
-            onClick={() =>
-              openPrintablePdf(resumeBeforeAfterHtml(report, roleAnalyses[0]))
-            }
+            onClick={() => {
+              trackEvent("download_report_pdf", {
+                type: "de_para",
+                analysisId: report.analysisId,
+                targetRole: report.request.targetRole,
+              });
+              openPrintablePdf(resumeBeforeAfterHtml(report, roleAnalyses[0]));
+            }}
           >
             <Download />
             Gerar PDF do CV
@@ -732,9 +759,14 @@ export function ReportView({
           <Button
             size="lg"
             variant="outline"
-            onClick={() =>
-              openPrintablePdf(insightsExportHtml)
-            }
+            onClick={() => {
+              trackEvent("download_report_pdf", {
+                type: "insights",
+                analysisId: report.analysisId,
+                targetRole: report.request.targetRole,
+              });
+              openPrintablePdf(insightsExportHtml);
+            }}
           >
             <Radar />
             PDF de insights
@@ -742,16 +774,29 @@ export function ReportView({
           <Button
             size="lg"
             variant="outline"
-            onClick={() => openPrintablePdf(insightsExportHtml)}
+            onClick={() => {
+              trackEvent("download_report_pdf", {
+                type: "full_report",
+                analysisId: report.analysisId,
+                targetRole: report.request.targetRole,
+              });
+              openPrintablePdf(insightsExportHtml);
+            }}
           >
             <FileText />
             PDF do relatorio
           </Button>
-          <Button size="lg" variant="outline" onClick={() => router.push("/demo")}>
+          <Button size="lg" variant="outline" onClick={() => {
+            trackEvent("send_new_cv_click", { analysisId: report.analysisId, targetRole: report.request.targetRole });
+            router.push("/demo");
+          }}>
             <Upload />
             Enviar novo CV
           </Button>
-          <Button size="lg" variant="outline" onClick={() => router.push("/demo")}>
+          <Button size="lg" variant="outline" onClick={() => {
+            trackEvent("analyze_another_role_click", { analysisId: report.analysisId, targetRole: report.request.targetRole });
+            router.push("/demo");
+          }}>
             <Radar />
             Analisar outra vaga
           </Button>
@@ -1072,7 +1117,13 @@ export function ReportView({
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => downloadTextFile(`ai-job-radar-${slugify(report.request.targetRole)}-cv-adaptado.md`, report.adaptedCvDraft)}
+              onClick={() => {
+                trackEvent("download_cv_markdown", {
+                  analysisId: report.analysisId,
+                  targetRole: report.request.targetRole,
+                });
+                downloadTextFile(`ai-job-radar-${slugify(report.request.targetRole)}-cv-adaptado.md`, report.adaptedCvDraft);
+              }}
             >
               <Download />
               Baixar CV em Markdown

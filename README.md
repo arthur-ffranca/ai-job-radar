@@ -36,6 +36,40 @@ npm run build
 npm run start
 ```
 
+## Product Analytics (PostHog)
+
+AI Job Radar now includes optional telemetry for product funnel monitoring.
+
+Set env vars:
+
+```env
+NEXT_PUBLIC_POSTHOG_KEY=phc_your_posthog_project_key
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+```
+
+Tracked events include:
+
+- `demo_opened`
+- `cv_upload_started`
+- `cv_upload_success`
+- `cv_upload_failed`
+- `analysis_started`
+- `analysis_success`
+- `analysis_failed`
+- `report_opened`
+- `download_cv_markdown`
+- `download_report_pdf`
+- `copy_action`
+- `delete_analysis`
+
+With this, you can monitor:
+
+- unique users entering `/demo`
+- analysis conversion rate
+- report open rate
+- download and copy usage
+- failure points in upload and analysis
+
 ## Project Structure
 
 ```text

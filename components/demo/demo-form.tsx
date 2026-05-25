@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { analyzeDemoReport, clearStoredDemoReport } from "@/lib/job-radar-client";
 import type { ParsedProfile, Seniority, WorkModel } from "@/lib/job-radar-types";
 import { ParseResumeDebugError, parseResumeFile } from "@/lib/resume-parser-client";
+import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 
 const seniorityOptions: Seniority[] = ["Any", "Junior", "Mid-level", "Senior", "Lead"];
@@ -121,6 +122,10 @@ export function DemoForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    trackEvent("demo_opened");
+  }, []);
+
+  useEffect(() => {
     window.setTimeout(() => {
       const params = new URLSearchParams(window.location.search);
       const resumeName = params.get("resume");
@@ -185,6 +190,16 @@ export function DemoForm() {
     activeAnalysisIdRef.current = analysisId;
     clearStoredDemoReport();
     setIsLoading(true);
+    trackEvent("analysis_started", {
+      analysisId,
+      targetRole: selectedTargetRoles[0],
+      targetRolesCount: selectedTargetRoles.length,
+      location: formData.location.trim() || "not_provided",
+      workModel: formData.workModel,
+      seniority: formData.seniority,
+      hasJobDescription: Boolean(formData.jobDescription.trim()),
+      hasCvFile: Boolean(formData.cvFileName),
+    });
 
     const payload = {
       analysisId,
@@ -213,14 +228,27 @@ export function DemoForm() {
           activeAnalysisId: activeAnalysisIdRef.current,
           returnedAnalysisId: report.analysisId,
         });
+        trackEvent("analysis_ignored_stale", {
+          analysisId,
+          returnedAnalysisId: report.analysisId,
+        });
         return;
       }
 
+      trackEvent("analysis_success", {
+        analysisId,
+        targetRole: report.request.targetRole,
+        matchScore: report.matchScore,
+      });
       router.push(`/report?analysisId=${encodeURIComponent(analysisId)}`);
     } catch (error) {
       const message = sanitizeFlowMessage(
         error instanceof Error ? error.message : "Erro ao gerar a analise."
       );
+      trackEvent("analysis_failed", {
+        analysisId,
+        message,
+      });
       setFormData((prev) => ({
         ...prev,
         uploadStatus: "error",
@@ -293,6 +321,7 @@ export function DemoForm() {
     setIsLoading(false);
 
     if (!file) {
+      trackEvent("cv_upload_missing_file");
       setFormData((prev) => ({
         ...prev,
         uploadStatus: "error",
@@ -302,6 +331,7 @@ export function DemoForm() {
     }
 
     if (!/\.(pdf|docx)$/i.test(file.name)) {
+      trackEvent("cv_upload_invalid_type", { fileName: file.name });
       activeParseIdRef.current = null;
       setFormData((prev) => ({
         ...prev,
@@ -321,6 +351,11 @@ export function DemoForm() {
 
     const parseId = crypto.randomUUID();
     activeParseIdRef.current = parseId;
+    trackEvent("cv_upload_started", {
+      parseId,
+      fileName: file.name,
+      fileSize: file.size,
+    });
 
     setFormData((prev) => ({
       ...prev,
@@ -345,6 +380,7 @@ export function DemoForm() {
           activeParseId: activeParseIdRef.current,
           completedParseId: parseId,
         });
+        trackEvent("cv_upload_stale_parse_ignored", { parseId });
         return;
       }
 
@@ -374,6 +410,11 @@ export function DemoForm() {
         console.log("[AI Job Radar] form state after merge", next);
         return next;
       });
+      trackEvent("cv_upload_success", {
+        parseId,
+        fileName: file.name,
+        rawTextLength: response.raw_text.length,
+      });
     } catch (error) {
       const message = sanitizeFlowMessage(
         error instanceof Error ? error.message : "Erro ao ler o CV."
@@ -387,6 +428,11 @@ export function DemoForm() {
       if (activeParseIdRef.current !== parseId) {
         return;
       }
+      trackEvent("cv_upload_failed", {
+        parseId,
+        fileName: file.name,
+        message,
+      });
       setFormData((prev) => ({
         ...prev,
         cvFile: file,
@@ -412,6 +458,7 @@ export function DemoForm() {
 
   function handleRemoveFile() {
     console.log("[AI Job Radar] file removed");
+    trackEvent("cv_file_removed", { fileName: formData.cvFileName || "" });
     activeAnalysisIdRef.current = null;
     activeParseIdRef.current = null;
     clearStoredDemoReport();

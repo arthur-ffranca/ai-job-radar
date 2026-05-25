@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ptBR } from "@clerk/localizations";
 
+import { AnalyticsProvider } from "@/components/analytics/posthog-provider";
 import { AuthPromptProvider } from "@/components/auth/auth-prompt-provider";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import "./globals.css";
@@ -26,7 +27,9 @@ export default function RootLayout({
           signUpUrl="/sign-up"
           appearance={clerkAppearance}
         >
-          <AuthPromptProvider>{children}</AuthPromptProvider>
+          <AnalyticsProvider>
+            <AuthPromptProvider>{children}</AuthPromptProvider>
+          </AnalyticsProvider>
         </ClerkProvider>
       </body>
     </html>
