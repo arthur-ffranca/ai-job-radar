@@ -5,33 +5,75 @@ import { MessageSquare, Send, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getOrCreateAnonId } from "@/lib/client-id";
+import { trackEvent } from "@/lib/telemetry";
 
 type ReportFeedback = {
   rating: number;
   comment: string;
   useCase: string;
   createdAt: string;
+  analysisId?: string;
+  targetRole?: string;
+  matchScore?: number;
+  anonId?: string;
 };
 
-export function ReportFeedbackCard() {
+type ReportFeedbackCardProps = {
+  analysisId?: string;
+  targetRole?: string;
+  matchScore?: number;
+};
+
+export function ReportFeedbackCard({
+  analysisId,
+  targetRole,
+  matchScore,
+}: ReportFeedbackCardProps) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [useCase, setUseCase] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError("");
+    setIsSubmitting(true);
 
     const payload: ReportFeedback = {
       rating,
       comment: comment.trim(),
       useCase: useCase.trim(),
       createdAt: new Date().toISOString(),
+      anonId: getOrCreateAnonId(),
+      analysisId,
+      targetRole,
+      matchScore,
     };
 
-    console.log("[AI Job Radar] feedback do relatorio", payload);
+    try {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    setSubmitted(true);
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(typeof body.error === "string" ? body.error : "Erro ao enviar feedback.");
+      }
+
+      trackEvent("report_feedback_submitted", payload);
+      setSubmitted(true);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Erro ao enviar feedback.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -54,7 +96,7 @@ export function ReportFeedbackCard() {
           <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 p-4">
             <p className="text-sm font-medium text-emerald-100">Feedback registrado.</p>
             <p className="mt-2 text-sm leading-6 text-slate-300">
-              Por enquanto ele fica salvo localmente. A estrutura ja esta pronta para enviar para a API quando conectarmos o banco.
+              Obrigado. Sua resposta foi enviada de forma privada para melhoria do produto.
             </p>
           </div>
         ) : (
@@ -102,9 +144,19 @@ export function ReportFeedbackCard() {
               />
             </label>
 
-            <Button type="submit" className="w-full" disabled={!rating && !comment.trim()}>
+            {error ? (
+              <p className="rounded-md border border-red-300/20 bg-red-300/10 p-3 text-sm text-red-100">
+                {error}
+              </p>
+            ) : null}
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isSubmitting || (!rating && !comment.trim())}
+            >
               <Send />
-              Enviar feedback
+              {isSubmitting ? "Enviando..." : "Enviar feedback privado"}
             </Button>
           </form>
         )}

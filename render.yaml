@@ -14,6 +14,18 @@ services:
           name: ai-job-radar-api
           type: web
           property: hostport
+      - key: DATABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_POSTHOG_KEY
+        sync: false
+      - key: NEXT_PUBLIC_POSTHOG_HOST
+        value: https://us.i.posthog.com
+      - key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
 
   - type: web
     name: ai-job-radar-api

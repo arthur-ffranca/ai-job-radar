@@ -1617,7 +1617,11 @@ export function ReportView({
       </div>
 
       <div className="mt-6">
-        <ReportFeedbackCard />
+        <ReportFeedbackCard
+          analysisId={report.analysisId}
+          targetRole={report.snapshot.targetRole}
+          matchScore={report.matchScore}
+        />
       </div>
     </div>
   );

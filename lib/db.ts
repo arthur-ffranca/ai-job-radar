@@ -22,6 +22,29 @@ export type UsageRow = {
   updated_at: string;
 };
 
+export type ReportFeedbackRow = {
+  id: string;
+  user_id: string | null;
+  anon_id: string | null;
+  analysis_id: string | null;
+  target_role: string | null;
+  match_score: number | null;
+  rating: number | null;
+  comment: string;
+  use_case: string;
+  created_at: string;
+};
+
+export type SiteEventRow = {
+  id: string;
+  event_name: string;
+  user_id: string | null;
+  anon_id: string | null;
+  path: string | null;
+  properties: Record<string, unknown>;
+  created_at: string;
+};
+
 let pool: Pool | null = null;
 
 function getPool() {
@@ -138,3 +161,105 @@ export async function cancelSubscriptionByStripeId(subscriptionId: string) {
   );
 }
 
+export async function createReportFeedback(input: {
+  userId?: string | null;
+  anonId?: string | null;
+  analysisId?: string | null;
+  targetRole?: string | null;
+  matchScore?: number | null;
+  rating?: number | null;
+  comment?: string | null;
+  useCase?: string | null;
+}) {
+  const { rows } = await getPool().query<ReportFeedbackRow>(
+    `insert into report_feedback (
+      user_id, anon_id, analysis_id, target_role, match_score, rating, comment, use_case
+    ) values ($1,$2,$3,$4,$5,$6,$7,$8)
+    returning *`,
+    [
+      input.userId || null,
+      input.anonId || null,
+      input.analysisId || null,
+      input.targetRole || null,
+      input.matchScore ?? null,
+      input.rating ?? null,
+      input.comment || "",
+      input.useCase || "",
+    ]
+  );
+
+  return rows[0];
+}
+
+export async function createSiteEvent(input: {
+  eventName: string;
+  userId?: string | null;
+  anonId?: string | null;
+  path?: string | null;
+  properties?: Record<string, unknown> | null;
+}) {
+  const { rows } = await getPool().query<SiteEventRow>(
+    `insert into site_events (event_name, user_id, anon_id, path, properties)
+     values ($1,$2,$3,$4,$5)
+     returning *`,
+    [
+      input.eventName,
+      input.userId || null,
+      input.anonId || null,
+      input.path || null,
+      JSON.stringify(input.properties || {}),
+    ]
+  );
+
+  return rows[0];
+}
+
+export async function getInternalMetrics() {
+  const [daily, funnel, feedback] = await Promise.all([
+    getPool().query<{
+      day: string;
+      page_views: number;
+      unique_visitors: number;
+      analyses_started: number;
+      analyses_completed: number;
+    }>(
+      `select
+        date_trunc('day', created_at)::text as day,
+        count(*) filter (where event_name = 'page_viewed')::int as page_views,
+        count(distinct coalesce(user_id, anon_id)) filter (where event_name = 'page_viewed')::int as unique_visitors,
+        count(*) filter (where event_name = 'analysis_started')::int as analyses_started,
+        count(*) filter (where event_name = 'analysis_success')::int as analyses_completed
+       from site_events
+       where created_at >= now() - interval '30 days'
+       group by 1
+       order by 1 desc`
+    ),
+    getPool().query<{
+      event_name: string;
+      total_events: number;
+      unique_visitors: number;
+    }>(
+      `select
+        event_name,
+        count(*)::int as total_events,
+        count(distinct coalesce(user_id, anon_id))::int as unique_visitors
+       from site_events
+       where created_at >= now() - interval '30 days'
+         and event_name in ('page_viewed', 'demo_opened', 'cv_upload_success', 'analysis_started', 'analysis_success')
+       group by event_name
+       order by total_events desc`
+    ),
+    getPool().query<ReportFeedbackRow>(
+      `select *
+       from report_feedback
+       order by created_at desc
+       limit 100`
+    ),
+  ]);
+
+  return {
+    daily: daily.rows,
+    funnel: funnel.rows,
+    feedback: feedback.rows,
+  };
+}

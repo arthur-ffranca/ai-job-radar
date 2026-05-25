@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
+
+import { trackEvent } from "@/lib/telemetry";
 
 type Props = {
   children: React.ReactNode;
@@ -15,7 +17,6 @@ const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.postho
 
 function PostHogIdentitySync() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { user, isSignedIn } = useUser();
 
   useEffect(() => {
@@ -32,14 +33,12 @@ function PostHogIdentitySync() {
   }, [isSignedIn, user]);
 
   useEffect(() => {
-    if (!posthogKey) {
-      return;
+    if (posthogKey) {
+      posthog.capture("$pageview", { $current_url: pathname });
     }
 
-    const query = searchParams.toString();
-    const currentUrl = query ? `${pathname}?${query}` : pathname;
-    posthog.capture("$pageview", { $current_url: currentUrl });
-  }, [pathname, searchParams]);
+    trackEvent("page_viewed", { path: pathname });
+  }, [pathname]);
 
   return null;
 }
@@ -59,7 +58,12 @@ export function AnalyticsProvider({ children }: Props) {
   }, []);
 
   if (!posthogKey) {
-    return <>{children}</>;
+    return (
+      <>
+        <PostHogIdentitySync />
+        {children}
+      </>
+    );
   }
 
   return (
@@ -69,4 +73,3 @@ export function AnalyticsProvider({ children }: Props) {
     </PostHogProvider>
   );
 }
-
