@@ -1,4 +1,4 @@
-import { Pool } from "@neondatabase/serverless";
+import { Pool } from "pg";
 
 import { getRequiredEnv } from "@/lib/env";
 
