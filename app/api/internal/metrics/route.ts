@@ -35,7 +35,22 @@ export async function GET() {
 
   const allowedEmails = adminEmails();
   if (!allowedEmails.length) {
-    return NextResponse.json({ error: "Admin access is not configured." }, { status: 403 });
+    const metrics = await getInternalMetrics();
+    return NextResponse.json(
+      {
+        ...metrics,
+        accessMode: "open-temporary",
+        warning:
+          "ADMIN_EMAILS/INTERNAL_METRICS_TOKEN não configurados. Endpoint liberado temporariamente em modo leitura.",
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      }
+    );
   }
 
   const user = await currentUser();
