@@ -15,14 +15,25 @@ function adminEmails() {
 }
 
 async function metricsResponse() {
-  const metrics = await getInternalMetrics();
-  return NextResponse.json(metrics, {
-    headers: {
-      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-      Pragma: "no-cache",
-      Expires: "0",
-    },
-  });
+  try {
+    const metrics = await getInternalMetrics();
+    return NextResponse.json(metrics, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: "Metrics query failed.",
+        detail: error instanceof Error ? error.message : "Unknown metrics error.",
+        hint: "Run POST /api/internal/setup-db with x-internal-token to create metrics tables.",
+      },
+      { status: 500 }
+    );
+  }
 }
 
 export async function GET() {
