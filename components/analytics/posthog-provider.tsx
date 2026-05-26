@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import posthog from "posthog-js";
@@ -12,15 +12,17 @@ type Props = {
   children: React.ReactNode;
 };
 
-const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
+type RuntimeConfig = {
+  posthogKey: string;
+  posthogHost: string;
+};
 
-function PostHogIdentitySync() {
+function PostHogIdentitySync({ enabled }: { enabled: boolean }) {
   const pathname = usePathname();
   const { user, isSignedIn } = useUser();
 
   useEffect(() => {
-    if (!posthogKey) {
+    if (!enabled) {
       return;
     }
 
@@ -30,37 +32,66 @@ function PostHogIdentitySync() {
         name: user.fullName || "",
       });
     }
-  }, [isSignedIn, user]);
+  }, [enabled, isSignedIn, user]);
 
   useEffect(() => {
-    if (posthogKey) {
+    if (enabled) {
       posthog.capture("$pageview", { $current_url: pathname });
     }
 
     trackEvent("page_viewed", { path: pathname });
-  }, [pathname]);
+  }, [enabled, pathname]);
 
   return null;
 }
 
 export function AnalyticsProvider({ children }: Props) {
+  const [config, setConfig] = useState<RuntimeConfig | null>(null);
+  const enabled = Boolean(config?.posthogKey);
+
   useEffect(() => {
-    if (!posthogKey) {
+    let mounted = true;
+
+    async function loadConfig() {
+      try {
+        const response = await fetch("/api/public-config", { cache: "no-store" });
+        const data = (await response.json()) as RuntimeConfig;
+        if (mounted) {
+          setConfig(data);
+        }
+      } catch {
+        if (mounted) {
+          setConfig({
+            posthogKey: process.env.NEXT_PUBLIC_POSTHOG_KEY || "",
+            posthogHost: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+          });
+        }
+      }
+    }
+
+    void loadConfig();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!enabled || !config?.posthogKey) {
       return;
     }
 
-    posthog.init(posthogKey, {
-      api_host: posthogHost,
+    posthog.init(config.posthogKey, {
+      api_host: config.posthogHost || "https://us.i.posthog.com",
       person_profiles: "identified_only",
       capture_pageview: false,
       capture_pageleave: true,
     });
-  }, []);
+  }, [config, enabled]);
 
-  if (!posthogKey) {
+  if (!enabled) {
     return (
       <>
-        <PostHogIdentitySync />
+        <PostHogIdentitySync enabled={false} />
         {children}
       </>
     );
@@ -68,7 +99,7 @@ export function AnalyticsProvider({ children }: Props) {
 
   return (
     <PostHogProvider client={posthog}>
-      <PostHogIdentitySync />
+      <PostHogIdentitySync enabled />
       {children}
     </PostHogProvider>
   );
